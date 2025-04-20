@@ -13,8 +13,6 @@ function GodModeModule.new()
     self.IsGodModeEnabled = false
     self.OriginalMaxHealth = 100
     self.GodModeConnection = nil
-    self.FallDamageConnection = nil
-    self.StateChangedConnection = nil
     self.HealthChangedConnection = nil
     self.SteppedConnection = nil
     self.PreviousHealth = nil
@@ -27,7 +25,7 @@ function GodModeModule.new()
 end
 
 function GodModeModule:SetCharacter(character)
-    if self.IsGodModeEnabled then
+    if self.IsGodModeEnabled and self.Character ~= character then
         self:Disable()
     end
     
@@ -90,7 +88,7 @@ function GodModeModule:HandleDisasters()
     
     for _, instance in pairs(self.Character:GetDescendants()) do
         if instance:IsA("Fire") or instance:IsA("Smoke") then
-            instance.Enabled = false
+            pcall(function() instance.Enabled = false end)
         end
         
         if instance.Name == "Fire" or 
@@ -123,7 +121,7 @@ function GodModeModule:Enable()
     self.LastHealTime = tick()
     
     if not self.SteppedConnection then
-        self.SteppedConnection = RunService.Stepped:Connect(function()
+        self.SteppedConnection = RunService.RenderStepped:Connect(function()
             if not self.IsGodModeEnabled then return end
             self:MonitorHealth()
             self:HandleDisasters()
@@ -134,23 +132,11 @@ function GodModeModule:Enable()
         self.HealthChangedConnection = self.Humanoid.HealthChanged:Connect(function(health)
             if not self.IsGodModeEnabled then return end
             
-            if health < self.PreviousHealth - 10 or health < self.Humanoid.MaxHealth * 0.5 then
+            if health < self.PreviousHealth - 5 or health < self.Humanoid.MaxHealth * 0.7 then
                 self.Humanoid.Health = self.Humanoid.MaxHealth
             end
         end)
     end
-    
-    if not self.StateChangedConnection then
-        self.StateChangedConnection = self.Humanoid:GetPropertyChangedSignal("PlatformStand"):Connect(function()
-            if not self.IsGodModeEnabled then return end
-            
-            if self.Humanoid.PlatformStand then
-                self.Humanoid.PlatformStand = false
-            end
-        end)
-    end
-    
-    self.Humanoid.FallDistance = 0
     
     local oldWalkSpeed = self.Humanoid.WalkSpeed
     local oldJumpPower = self.Humanoid.JumpPower
@@ -171,27 +157,38 @@ function GodModeModule:Enable()
         end
     end)
     
-    pcall(function()
-        for _, part in pairs(self.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                pcall(function() part.CanTouch = false end)
-                pcall(function() part.Massless = true end)
-            end
+    self.ShieldConnection = RunService.Heartbeat:Connect(function()
+        if not self.IsGodModeEnabled or not self.Character or not self.Humanoid then return end
+        
+        if self.Humanoid.Health < self.Humanoid.MaxHealth then
+            self.Humanoid.Health = self.Humanoid.MaxHealth
+        end
+        
+        local currentState = self.Humanoid:GetState()
+        if currentState == Enum.HumanoidStateType.FallingDown or 
+           currentState == Enum.HumanoidStateType.Ragdoll then
+            pcall(function() self.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) end)
+        end
+        
+        if self.Humanoid.PlatformStand then
+            self.Humanoid.PlatformStand = false
+        end
+        
+        if self.Humanoid.Sit then
+            self.Humanoid.Sit = false
         end
     end)
     
-    task.spawn(function()
-        while self.IsGodModeEnabled and self.Humanoid do
-            -- If in a bad state, force back to normal
-            local state = self.Humanoid:GetState()
-            if state == Enum.HumanoidStateType.Dead or 
-               state == Enum.HumanoidStateType.FallingDown or 
-               state == Enum.HumanoidStateType.Ragdoll then
-                pcall(function() self.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) end)
-            end
-            task.wait(0.1)
+    for _, part in pairs(self.Character:GetChildren()) do
+        if part:IsA("BasePart") then
+            pcall(function()
+                part.CollisionGroupId = 1 
+                part.CanCollide = part == workspace.Terrain
+                part.CanQuery = false 
+                part.CanTouch = false 
+            end)
         end
-    end)
+    end
     
     return true
 end
@@ -200,13 +197,12 @@ function GodModeModule:Disable()
     self.IsGodModeEnabled = false
     
     for _, connection in pairs({
-        self.GodModeConnection,
-        self.FallDamageConnection, 
-        self.StateChangedConnection,
-        self.HealthChangedConnection,
         self.SteppedConnection,
+        self.HealthChangedConnection,
         self.WalkSpeedConnection,
-        self.JumpPowerConnection
+        self.JumpPowerConnection,
+        self.ShieldConnection,
+        self.DiedConnection
     }) do
         if connection then
             connection:Disconnect()
@@ -217,15 +213,17 @@ function GodModeModule:Disable()
     if self.Humanoid then
         self.Humanoid.MaxHealth = self.OriginalMaxHealth
         self.Humanoid.Health = self.OriginalMaxHealth
-        
-        pcall(function() self.Humanoid.FallDistance = 200 end) -- Default for most games
     end
     
     if self.Character then
-        for _, part in pairs(self.Character:GetDescendants()) do
+        for _, part in pairs(self.Character:GetChildren()) do
             if part:IsA("BasePart") then
-                pcall(function() part.CanTouch = true end)
-                pcall(function() part.Massless = false end)
+                pcall(function()
+                    part.CollisionGroupId = 0
+                    part.CanCollide = true
+                    part.CanQuery = true
+                    part.CanTouch = true
+                end)
             end
         end
     end
