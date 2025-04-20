@@ -94,7 +94,6 @@ function FlyModule:Start()
         end)
     end
     
-    print("เริ่มบิน - ความเร็ว: " .. self.Config.FlySpeed)
 end
 
 function FlyModule:Stop()
@@ -115,7 +114,6 @@ function FlyModule:Stop()
         self.RenderSteppedConnection = nil
     end
     
-    print("หยุดบิน")
 end
 
 function FlyModule:UpdateMoveDirection()
@@ -195,7 +193,6 @@ end
 function FlyModule:PrintWithCooldown(message)
     local currentTime = tick()
     if currentTime - self.LastSpeedPrint >= self.Config.PrintCooldown then
-        print(message)
         self.LastSpeedPrint = currentTime
     end
 end

@@ -49,7 +49,6 @@ function NoClipModule:Enable()
     
     self:SetupNoClipLoop()
     
-    print("NoClip เปิดใช้งาน")
     return true
 end
 
@@ -69,7 +68,6 @@ function NoClipModule:Disable()
         end
     end
     
-    print("NoClip ปิดใช้งาน")
     return true
 end
 

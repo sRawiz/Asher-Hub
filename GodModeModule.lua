@@ -24,7 +24,6 @@ function GodModeModule:SetCharacter(character)
         self.Humanoid = self.Character:WaitForChild("Humanoid")
         
         if self.Humanoid then
-            -- Store original health values
             self.OriginalMaxHealth = self.Humanoid.MaxHealth
             
             self.Humanoid.Died:Connect(function()
@@ -44,11 +43,9 @@ function GodModeModule:Enable()
     
     self.IsGodModeEnabled = true
     
-    -- Make character invincible
     self.Humanoid.MaxHealth = math.huge
     self.Humanoid.Health = math.huge
     
-    -- Prevent fall damage and other damage
     if not self.GodModeConnection then
         self.GodModeConnection = RunService.Heartbeat:Connect(function()
             if not self.Character or not self.Humanoid then return end
@@ -58,7 +55,6 @@ function GodModeModule:Enable()
         end)
     end
     
-    -- Additional handling for fall damage specifically
     if not self.FallDamageConnection then
         self.FallDamageConnection = self.Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
             if self.IsGodModeEnabled and self.Humanoid.Health < math.huge then
@@ -67,7 +63,6 @@ function GodModeModule:Enable()
         end)
     end
     
-    print("God Mode เปิดใช้งาน")
     return true
 end
 
@@ -85,12 +80,10 @@ function GodModeModule:Disable()
     end
     
     if self.Humanoid then
-        -- Restore original health values
         self.Humanoid.MaxHealth = self.OriginalMaxHealth
         self.Humanoid.Health = self.OriginalMaxHealth
     end
     
-    print("God Mode ปิดใช้งาน")
     return true
 end
 

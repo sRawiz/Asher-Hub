@@ -135,7 +135,6 @@ UserInputService.InputEnded:Connect(function(Input)
     flyInterface:HandleInput(Input.KeyCode, false)
 end)
 
--- Character handling
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
