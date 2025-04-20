@@ -1,5 +1,3 @@
---Script นี้ใช้ Claude Model 3.7 Sonnet ในการพัฒนาขึ้นมา
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
