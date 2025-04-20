@@ -19,10 +19,12 @@ function UI.new(config)
     self.UIVisible = true
     self.IsFlying = false
     self.IsNoClipping = false
+    self.IsGodMode = false
     
     -- Callback functions (to be set by Main.lua)
     self.OnToggleFly = function() end
     self.OnToggleNoClip = function() end
+    self.OnToggleGodMode = function() end
     self.OnIncreaseSpeed = function() end
     self.OnDecreaseSpeed = function() end
     
@@ -51,7 +53,7 @@ function UI:CreateUI()
     -- Create Main Frame
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
-    self.MainFrame.Size = UDim2.new(0, 200, 0, 180)
+    self.MainFrame.Size = UDim2.new(0, 200, 0, 220) -- Increased height for GodMode
     self.MainFrame.Position = UDim2.new(0.85, -100, 0.3, 0)
     self.MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     self.MainFrame.BorderSizePixel = 0
@@ -91,7 +93,7 @@ function UI:CreateUI()
     TitleText.Size = UDim2.new(1, -40, 1, 0)
     TitleText.Position = UDim2.new(0, 10, 0, 0)
     TitleText.BackgroundTransparency = 1
-    TitleText.Text = "AsherHub Fly & NoClip"
+    TitleText.Text = "AsherHub Tools"
     TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleText.TextSize = 16
     TitleText.Font = Enum.Font.SourceSansBold
@@ -118,7 +120,7 @@ function UI:CreateUI()
     -- Status Section
     local StatusFrame = Instance.new("Frame")
     StatusFrame.Name = "StatusFrame"
-    StatusFrame.Size = UDim2.new(1, -20, 0, 50)
+    StatusFrame.Size = UDim2.new(1, -20, 0, 85) -- Increased height for GodMode status
     StatusFrame.Position = UDim2.new(0, 10, 0, 40)
     StatusFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     StatusFrame.BorderSizePixel = 0
@@ -160,16 +162,29 @@ function UI:CreateUI()
     self.NoClipStatus.Font = Enum.Font.SourceSans
     self.NoClipStatus.Parent = StatusFrame
     
-    -- NoClip Status Round Corners
-    local NoClipStatusCorner = Instance.new("UICorner")
-    NoClipStatusCorner.CornerRadius = UDim.new(0, 4)
-    NoClipStatusCorner.Parent = self.NoClipStatus
+    -- GodMode Status
+    self.GodModeStatus = Instance.new("TextLabel")
+    self.GodModeStatus.Name = "GodModeStatus"
+    self.GodModeStatus.Size = UDim2.new(1, -20, 0, 25)
+    self.GodModeStatus.Position = UDim2.new(0, 10, 0, 35)
+    self.GodModeStatus.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    self.GodModeStatus.BorderSizePixel = 0
+    self.GodModeStatus.Text = "God Mode: OFF"
+    self.GodModeStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
+    self.GodModeStatus.TextSize = 14
+    self.GodModeStatus.Font = Enum.Font.SourceSans
+    self.GodModeStatus.Parent = StatusFrame
+    
+    -- GodMode Status Round Corners
+    local GodModeStatusCorner = Instance.new("UICorner")
+    GodModeStatusCorner.CornerRadius = UDim.new(0, 4)
+    GodModeStatusCorner.Parent = self.GodModeStatus
     
     -- Speed Label
     self.SpeedLabel = Instance.new("TextLabel")
     self.SpeedLabel.Name = "SpeedLabel"
     self.SpeedLabel.Size = UDim2.new(1, -20, 0, 20)
-    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 35)
+    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 65)
     self.SpeedLabel.BackgroundTransparency = 1
     self.SpeedLabel.Text = "Speed: " .. self.Config.FlySpeed
     self.SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -181,7 +196,7 @@ function UI:CreateUI()
     local ControlsFrame = Instance.new("Frame")
     ControlsFrame.Name = "ControlsFrame"
     ControlsFrame.Size = UDim2.new(1, -20, 0, 80)
-    ControlsFrame.Position = UDim2.new(0, 10, 0, 100)
+    ControlsFrame.Position = UDim2.new(0, 10, 0, 135) -- Adjusted position
     ControlsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     ControlsFrame.BorderSizePixel = 0
     ControlsFrame.Parent = self.MainFrame
@@ -191,6 +206,7 @@ function UI:CreateUI()
     ControlsCorner.CornerRadius = UDim.new(0, 6)
     ControlsCorner.Parent = ControlsFrame
     
+    -- First row of buttons
     -- Toggle Fly Button
     self.ToggleFlyButton = Instance.new("TextButton")
     self.ToggleFlyButton.Name = "ToggleFlyButton"
@@ -225,13 +241,30 @@ function UI:CreateUI()
     NoClipButtonCorner.CornerRadius = UDim.new(0, 4)
     NoClipButtonCorner.Parent = self.ToggleNoClipButton
     
+    -- Second row - God Mode Button
+    self.ToggleGodModeButton = Instance.new("TextButton")
+    self.ToggleGodModeButton.Name = "ToggleGodModeButton"
+    self.ToggleGodModeButton.Size = UDim2.new(1, -20, 0, 25)
+    self.ToggleGodModeButton.Position = UDim2.new(0, 10, 0, 45)
+    self.ToggleGodModeButton.BackgroundColor3 = Color3.fromRGB(180, 60, 180)
+    self.ToggleGodModeButton.Text = "Toggle God Mode (G)"
+    self.ToggleGodModeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.ToggleGodModeButton.TextSize = 14
+    self.ToggleGodModeButton.Font = Enum.Font.SourceSans
+    self.ToggleGodModeButton.Parent = ControlsFrame
+    
+    -- Toggle God Mode Button Round Corners
+    local GodModeButtonCorner = Instance.new("UICorner")
+    GodModeButtonCorner.CornerRadius = UDim.new(0, 4)
+    GodModeButtonCorner.Parent = self.ToggleGodModeButton
+    
     -- Speed Control Frame
     local SpeedControlFrame = Instance.new("Frame")
     SpeedControlFrame.Name = "SpeedControlFrame"
     SpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
     SpeedControlFrame.Position = UDim2.new(0, 10, 0, 45)
     SpeedControlFrame.BackgroundTransparency = 1
-    SpeedControlFrame.Parent = ControlsFrame
+    SpeedControlFrame.Parent = StatusFrame
     
     -- Speed Decrease Button
     self.SpeedDecreaseButton = Instance.new("TextButton")
@@ -300,11 +333,6 @@ function UI:CreateUI()
     self.SpeedIncreaseButton.Font = Enum.Font.SourceSansBold
     self.SpeedIncreaseButton.Parent = SpeedControlFrame
     
-    -- Speed Increase Button Round Corners
-    local IncreaseCorner = Instance.new("UICorner")
-    IncreaseCorner.CornerRadius = UDim.new(0, 4)
-    IncreaseCorner.Parent = self.SpeedIncreaseButton
-    
     -- Connect button events
     self:ConnectEvents()
 end
@@ -317,6 +345,10 @@ function UI:ConnectEvents()
     
     self.ToggleNoClipButton.MouseButton1Click:Connect(function()
         self.OnToggleNoClip()
+    end)
+    
+    self.ToggleGodModeButton.MouseButton1Click:Connect(function()
+        self.OnToggleGodMode()
     end)
     
     self.SpeedDecreaseButton.MouseButton1Click:Connect(function()
@@ -353,6 +385,18 @@ function UI:UpdateNoClipStatus(isNoClipping)
     else
         self.NoClipStatus.Text = "NoClip: OFF"
         self.NoClipStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
+    end
+end
+
+function UI:UpdateGodModeStatus(isGodMode)
+    self.IsGodMode = isGodMode
+    
+    if isGodMode then
+        self.GodModeStatus.Text = "God Mode: ON"
+        self.GodModeStatus.TextColor3 = Color3.fromRGB(60, 200, 100)
+    else
+        self.GodModeStatus.Text = "God Mode: OFF"
+        self.GodModeStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
     end
 end
 
