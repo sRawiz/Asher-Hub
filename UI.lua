@@ -31,10 +31,12 @@ function UI.new(config)
     self.UIVisible = true
     self.IsFlying = false
     self.IsNoClipping = false
+    self.IsInvisible = false
     
     -- Callback functions (to be set by Main.lua)
     self.OnToggleFly = function() end
     self.OnToggleNoClip = function() end
+    self.OnToggleInvisible = function() end
     self.OnIncreaseSpeed = function() end
     self.OnDecreaseSpeed = function() end
     
@@ -63,7 +65,7 @@ function UI:CreateUI()
     -- Create Main Frame
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
-    self.MainFrame.Size = UDim2.new(0, 220, 0, 180) -- Adjusted for removal of GodMode
+    self.MainFrame.Size = UDim2.new(0, 220, 0, 230) -- Increased height for Invisible status
     self.MainFrame.Position = UDim2.new(0.85, -110, 0.3, 0)
     self.MainFrame.BackgroundColor3 = Colors.Background
     self.MainFrame.BorderSizePixel = 0
@@ -145,7 +147,7 @@ function UI:CreateUI()
     -- Status Section
     local StatusFrame = Instance.new("Frame")
     StatusFrame.Name = "StatusFrame"
-    StatusFrame.Size = UDim2.new(1, -20, 0, 55)
+    StatusFrame.Size = UDim2.new(1, -20, 0, 85) -- Increased height for Invisible status
     StatusFrame.Position = UDim2.new(0, 10, 0, 40)
     StatusFrame.BackgroundColor3 = Colors.SecondaryBg
     StatusFrame.BorderSizePixel = 0
@@ -187,11 +189,29 @@ function UI:CreateUI()
     self.NoClipStatus.Font = Enum.Font.Gotham
     self.NoClipStatus.Parent = StatusFrame
     
+    -- Invisible Status
+    self.InvisibleStatus = Instance.new("TextLabel")
+    self.InvisibleStatus.Name = "InvisibleStatus"
+    self.InvisibleStatus.Size = UDim2.new(1, -20, 0, 25)
+    self.InvisibleStatus.Position = UDim2.new(0, 10, 0, 35)
+    self.InvisibleStatus.BackgroundColor3 = Colors.Background
+    self.InvisibleStatus.BorderSizePixel = 0
+    self.InvisibleStatus.Text = "Invisible: OFF"
+    self.InvisibleStatus.TextColor3 = Colors.StatusOff
+    self.InvisibleStatus.TextSize = 14
+    self.InvisibleStatus.Font = Enum.Font.Gotham
+    self.InvisibleStatus.Parent = StatusFrame
+    
+    -- Invisible Status Round Corners
+    local InvisibleStatusCorner = Instance.new("UICorner")
+    InvisibleStatusCorner.CornerRadius = UDim.new(0, 4)
+    InvisibleStatusCorner.Parent = self.InvisibleStatus
+    
     -- Speed Label
     self.SpeedLabel = Instance.new("TextLabel")
     self.SpeedLabel.Name = "SpeedLabel"
     self.SpeedLabel.Size = UDim2.new(1, -20, 0, 20)
-    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 35)
+    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 65)
     self.SpeedLabel.BackgroundTransparency = 1
     self.SpeedLabel.Text = "Speed: " .. self.Config.FlySpeed
     self.SpeedLabel.TextColor3 = Colors.TextPrimary
@@ -202,8 +222,8 @@ function UI:CreateUI()
     -- Controls Section
     local ControlsFrame = Instance.new("Frame")
     ControlsFrame.Name = "ControlsFrame"
-    ControlsFrame.Size = UDim2.new(1, -20, 0, 75)
-    ControlsFrame.Position = UDim2.new(0, 10, 0, 105)
+    ControlsFrame.Size = UDim2.new(1, -20, 0, 95) -- Increased height for Invisible button
+    ControlsFrame.Position = UDim2.new(0, 10, 0, 135) -- Adjusted position
     ControlsFrame.BackgroundColor3 = Colors.SecondaryBg
     ControlsFrame.BorderSizePixel = 0
     ControlsFrame.Parent = self.MainFrame
@@ -248,11 +268,28 @@ function UI:CreateUI()
     NoClipButtonCorner.CornerRadius = UDim.new(0, 4)
     NoClipButtonCorner.Parent = self.ToggleNoClipButton
     
+    -- Toggle Invisible Button
+    self.ToggleInvisibleButton = Instance.new("TextButton")
+    self.ToggleInvisibleButton.Name = "ToggleInvisibleButton"
+    self.ToggleInvisibleButton.Size = UDim2.new(1, -20, 0, 30)
+    self.ToggleInvisibleButton.Position = UDim2.new(0, 10, 0, 45)
+    self.ToggleInvisibleButton.BackgroundColor3 = Colors.HighlightButton
+    self.ToggleInvisibleButton.Text = "Invisible (X)"
+    self.ToggleInvisibleButton.TextColor3 = Colors.TextPrimary
+    self.ToggleInvisibleButton.TextSize = 14
+    self.ToggleInvisibleButton.Font = Enum.Font.GothamSemibold
+    self.ToggleInvisibleButton.Parent = ControlsFrame
+    
+    -- Toggle Invisible Button Round Corners
+    local InvisibleButtonCorner = Instance.new("UICorner")
+    InvisibleButtonCorner.CornerRadius = UDim.new(0, 4)
+    InvisibleButtonCorner.Parent = self.ToggleInvisibleButton
+    
     -- Speed Control Frame
     local SpeedControlFrame = Instance.new("Frame")
     SpeedControlFrame.Name = "SpeedControlFrame"
     SpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
-    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 45)
+    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 80) -- Adjusted position
     SpeedControlFrame.BackgroundTransparency = 1
     SpeedControlFrame.Parent = ControlsFrame
     
@@ -326,6 +363,7 @@ function UI:CreateUI()
     -- Add hover effects
     self:AddButtonEffects(self.ToggleFlyButton, Colors.HighlightButton)
     self:AddButtonEffects(self.ToggleNoClipButton, Colors.HighlightButton)
+    self:AddButtonEffects(self.ToggleInvisibleButton, Colors.HighlightButton)
     self:AddButtonEffects(self.SpeedDecreaseButton, Colors.StatusOff)
     self:AddButtonEffects(self.SpeedIncreaseButton, Colors.StatusOn)
     self:AddButtonEffects(self.CloseButton, Colors.StatusOff)
@@ -375,6 +413,10 @@ function UI:ConnectEvents()
         self.OnToggleNoClip()
     end)
     
+    self.ToggleInvisibleButton.MouseButton1Click:Connect(function()
+        self.OnToggleInvisible()
+    end)
+    
     self.SpeedDecreaseButton.MouseButton1Click:Connect(function()
         self.OnDecreaseSpeed()
     end)
@@ -412,6 +454,18 @@ function UI:UpdateNoClipStatus(isNoClipping)
     end
 end
 
+function UI:UpdateInvisibleStatus(isInvisible)
+    self.IsInvisible = isInvisible
+    
+    if isInvisible then
+        self.InvisibleStatus.Text = "Invisible: ON"
+        self.InvisibleStatus.TextColor3 = Colors.StatusOn
+    else
+        self.InvisibleStatus.Text = "Invisible: OFF"
+        self.InvisibleStatus.TextColor3 = Colors.StatusOff
+    end
+end
+
 function UI:UpdateSpeed(speed)
     -- Update speed value
     self.SpeedValue.Text = speed
@@ -428,24 +482,7 @@ end
 
 function UI:ToggleVisibility()
     self.UIVisible = not self.UIVisible
-    
-    if not self.UIVisible then
-        -- Fade out effect
-        for i = 1, 10 do
-            self.MainFrame.Transparency = i/10
-            wait(0.01)
-        end
-        self.MainFrame.Visible = false
-        self.MainFrame.Transparency = 0
-    else
-        -- Fade in effect
-        self.MainFrame.Transparency = 1
-        self.MainFrame.Visible = true
-        for i = 10, 0, -1 do
-            self.MainFrame.Transparency = i/10
-            wait(0.01)
-        end
-    end
+    self.MainFrame.Visible = self.UIVisible
 end
 
 function UI:IsVisible()

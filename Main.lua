@@ -30,6 +30,7 @@ local Configuration = {
     FlySpeed = 25,
     ToggleFlyKey = Enum.KeyCode.E,
     ToggleNoClipKey = Enum.KeyCode.C,
+    ToggleInvisibleKey = Enum.KeyCode.X, 
     SpeedIncreaseKey = Enum.KeyCode.Q,
     SpeedDecreaseKey = Enum.KeyCode.Z,
     MaxSpeed = 100,
@@ -42,6 +43,7 @@ local Configuration = {
 local UI = LoadModule("UI")
 local FlyModule = LoadModule("FlyModule")
 local NoClipModule = LoadModule("NoClipModule")
+local InvisibleModule = LoadModule("InvisibleModule")
 
 if not UI then
     warn("Failed to load UI module")
@@ -58,11 +60,18 @@ if not NoClipModule then
     return
 end
 
+if not InvisibleModule then
+    warn("Failed to load InvisibleModule")
+    return
+end
+
 local IsFlying = false
 local IsNoClipping = false
+local IsInvisible = false
 
 local flyInterface = FlyModule.new(Configuration)
 local noClipInterface = NoClipModule.new()
+local invisibleInterface = InvisibleModule.new()
 local uiInterface = UI.new(Configuration)
 
 uiInterface.OnToggleFly = function()
@@ -85,6 +94,17 @@ uiInterface.OnToggleNoClip = function()
         IsNoClipping = true
     end
     uiInterface:UpdateNoClipStatus(IsNoClipping)
+end
+
+uiInterface.OnToggleInvisible = function() 
+    if IsInvisible then
+        invisibleInterface:Disable()
+        IsInvisible = false
+    else
+        invisibleInterface:Enable()
+        IsInvisible = true
+    end
+    uiInterface:UpdateInvisibleStatus(IsInvisible)
 end
 
 uiInterface.OnIncreaseSpeed = function()
@@ -112,6 +132,10 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
         uiInterface.OnToggleNoClip()
     end
     
+    if KeyCode == Configuration.ToggleInvisibleKey then
+        uiInterface.OnToggleInvisible()
+    end
+    
     if KeyCode == Configuration.SpeedIncreaseKey then
         uiInterface.OnIncreaseSpeed()
     elseif KeyCode == Configuration.SpeedDecreaseKey then
@@ -135,6 +159,7 @@ local LocalPlayer = Players.LocalPlayer
 LocalPlayer.CharacterAdded:Connect(function(Character)
     flyInterface:SetCharacter(Character)
     noClipInterface:SetCharacter(Character)
+    invisibleInterface:SetCharacter(Character)
     
     if IsFlying then
         flyInterface:Stop()
@@ -145,11 +170,16 @@ LocalPlayer.CharacterAdded:Connect(function(Character)
     if IsNoClipping then
         noClipInterface:Enable()
     end
+    
+    if IsInvisible then
+        invisibleInterface:Enable()
+    end
 end)
 
 if LocalPlayer.Character then
     flyInterface:SetCharacter(LocalPlayer.Character)
     noClipInterface:SetCharacter(LocalPlayer.Character)
+    invisibleInterface:SetCharacter(LocalPlayer.Character)
 end
 
 print("AsherHub loaded successfully!")
