@@ -8,16 +8,20 @@ local function LoadModule(moduleName)
     if success then
         local moduleFunction, loadError = loadstring(moduleContent)
         if moduleFunction then
-            local success, moduleResult = pcall(moduleFunction)
-            if success then
+            local moduleSuccess, moduleResult = pcall(moduleFunction)
+            if moduleSuccess then
+                print("Successfully loaded " .. moduleName)
                 return moduleResult
             else
+                warn("Error executing " .. moduleName .. ": " .. tostring(moduleResult))
                 return nil
             end
         else
+            warn("Error loading " .. moduleName .. ": " .. tostring(loadError))
             return nil
         end
     else
+        warn("Error fetching " .. moduleName .. ": " .. tostring(moduleContent))
         return nil
     end
 end
@@ -41,7 +45,18 @@ local FlyModule = LoadModule("FlyModule")
 local NoClipModule = LoadModule("NoClipModule")
 local GodModeModule = LoadModule("GodModeModule")
 
-if not UI or not FlyModule or not NoClipModule then
+if not UI then
+    warn("Failed to load UI module")
+    return
+end
+
+if not FlyModule then
+    warn("Failed to load FlyModule")
+    return
+end 
+
+if not NoClipModule then
+    warn("Failed to load NoClipModule")
     return
 end
 
@@ -51,7 +66,15 @@ local IsGodMode = false
 
 local flyInterface = FlyModule.new(Configuration)
 local noClipInterface = NoClipModule.new()
-local godModeInterface = GodModeModule and GodModeModule.new() or nil
+
+local godModeInterface = nil
+if GodModeModule then
+    godModeInterface = GodModeModule.new()
+    print("GodMode module loaded successfully")
+else
+    warn("GodMode module not available, continuing without it")
+end
+
 local uiInterface = UI.new(Configuration)
 
 uiInterface.OnToggleFly = function()
@@ -85,18 +108,23 @@ uiInterface.OnToggleGodMode = function()
             godModeInterface:Enable()
             IsGodMode = true
         end
-        uiInterface:UpdateGodModeStatus and uiInterface:UpdateGodModeStatus(IsGodMode)
+        
+        if uiInterface.UpdateGodModeStatus then
+            uiInterface:UpdateGodModeStatus(IsGodMode)
+        end
+    else
+        warn("Cannot toggle God Mode: Module not loaded")
     end
 end
 
 uiInterface.OnIncreaseSpeed = function()
-    flyInterface:AdjustSpeed(Configuration.SpeedIncrement)
-    uiInterface:UpdateSpeed(flyInterface:GetSpeed())
+    local newSpeed = flyInterface:AdjustSpeed(Configuration.SpeedIncrement)
+    uiInterface:UpdateSpeed(newSpeed)
 end
 
 uiInterface.OnDecreaseSpeed = function()
-    flyInterface:AdjustSpeed(-Configuration.SpeedIncrement)
-    uiInterface:UpdateSpeed(flyInterface:GetSpeed())
+    local newSpeed = flyInterface:AdjustSpeed(-Configuration.SpeedIncrement)
+    uiInterface:UpdateSpeed(newSpeed)
 end
 
 local UserInputService = game:GetService("UserInputService")
@@ -141,6 +169,7 @@ local LocalPlayer = Players.LocalPlayer
 LocalPlayer.CharacterAdded:Connect(function(Character)
     flyInterface:SetCharacter(Character)
     noClipInterface:SetCharacter(Character)
+    
     if godModeInterface then
         godModeInterface:SetCharacter(Character)
     end
@@ -163,7 +192,10 @@ end)
 if LocalPlayer.Character then
     flyInterface:SetCharacter(LocalPlayer.Character)
     noClipInterface:SetCharacter(LocalPlayer.Character)
+    
     if godModeInterface then
         godModeInterface:SetCharacter(LocalPlayer.Character)
     end
 end
+
+print("AsherHub loaded successfully!")

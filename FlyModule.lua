@@ -197,6 +197,7 @@ function FlyModule:PrintWithCooldown(message)
     end
 end
 
+
 function FlyModule:AdjustSpeed(increment)
     local oldSpeed = self.Config.FlySpeed
     self.Config.FlySpeed = math.clamp(
