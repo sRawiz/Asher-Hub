@@ -30,7 +30,6 @@ local Configuration = {
     FlySpeed = 25,
     ToggleFlyKey = Enum.KeyCode.E,
     ToggleNoClipKey = Enum.KeyCode.C,
-    ToggleGodModeKey = Enum.KeyCode.G,
     SpeedIncreaseKey = Enum.KeyCode.Q,
     SpeedDecreaseKey = Enum.KeyCode.Z,
     MaxSpeed = 100,
@@ -43,7 +42,6 @@ local Configuration = {
 local UI = LoadModule("UI")
 local FlyModule = LoadModule("FlyModule")
 local NoClipModule = LoadModule("NoClipModule")
-local GodModeModule = LoadModule("GodModeModule")
 
 if not UI then
     warn("Failed to load UI module")
@@ -62,19 +60,9 @@ end
 
 local IsFlying = false
 local IsNoClipping = false
-local IsGodMode = false
 
 local flyInterface = FlyModule.new(Configuration)
 local noClipInterface = NoClipModule.new()
-
-local godModeInterface = nil
-if GodModeModule then
-    godModeInterface = GodModeModule.new()
-    print("GodMode module loaded successfully")
-else
-    warn("GodMode module not available, continuing without it")
-end
-
 local uiInterface = UI.new(Configuration)
 
 uiInterface.OnToggleFly = function()
@@ -97,24 +85,6 @@ uiInterface.OnToggleNoClip = function()
         IsNoClipping = true
     end
     uiInterface:UpdateNoClipStatus(IsNoClipping)
-end
-
-uiInterface.OnToggleGodMode = function()
-    if godModeInterface then
-        if IsGodMode then
-            godModeInterface:Disable()
-            IsGodMode = false
-        else
-            godModeInterface:Enable()
-            IsGodMode = true
-        end
-        
-        if uiInterface.UpdateGodModeStatus then
-            uiInterface:UpdateGodModeStatus(IsGodMode)
-        end
-    else
-        warn("Cannot toggle God Mode: Module not loaded")
-    end
 end
 
 uiInterface.OnIncreaseSpeed = function()
@@ -142,10 +112,6 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
         uiInterface.OnToggleNoClip()
     end
     
-    if KeyCode == Configuration.ToggleGodModeKey and godModeInterface then
-        uiInterface.OnToggleGodMode()
-    end
-    
     if KeyCode == Configuration.SpeedIncreaseKey then
         uiInterface.OnIncreaseSpeed()
     elseif KeyCode == Configuration.SpeedDecreaseKey then
@@ -170,10 +136,6 @@ LocalPlayer.CharacterAdded:Connect(function(Character)
     flyInterface:SetCharacter(Character)
     noClipInterface:SetCharacter(Character)
     
-    if godModeInterface then
-        godModeInterface:SetCharacter(Character)
-    end
-    
     if IsFlying then
         flyInterface:Stop()
         task.wait(0.5)
@@ -183,19 +145,11 @@ LocalPlayer.CharacterAdded:Connect(function(Character)
     if IsNoClipping then
         noClipInterface:Enable()
     end
-    
-    if IsGodMode and godModeInterface then
-        godModeInterface:Enable()
-    end
 end)
 
 if LocalPlayer.Character then
     flyInterface:SetCharacter(LocalPlayer.Character)
     noClipInterface:SetCharacter(LocalPlayer.Character)
-    
-    if godModeInterface then
-        godModeInterface:SetCharacter(LocalPlayer.Character)
-    end
 end
 
 print("AsherHub loaded successfully!")

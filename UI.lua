@@ -6,6 +6,18 @@ local LocalPlayer = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 
+-- Discord-like colors
+local Colors = {
+    Background = Color3.fromRGB(54, 57, 63),      -- Main background
+    SecondaryBg = Color3.fromRGB(47, 49, 54),     -- Secondary background
+    Accent = Color3.fromRGB(114, 137, 218),       -- Discord blurple
+    TextPrimary = Color3.fromRGB(255, 255, 255),  -- White text
+    TextSecondary = Color3.fromRGB(185, 187, 190), -- Light gray text
+    StatusOn = Color3.fromRGB(67, 181, 129),      -- Green for "ON" status
+    StatusOff = Color3.fromRGB(240, 71, 71),      -- Red for "OFF" status
+    HighlightButton = Color3.fromRGB(88, 101, 242) -- Brighter accent for buttons
+}
+
 function UI.new(config)
     local self = setmetatable({}, UI)
     
@@ -19,12 +31,10 @@ function UI.new(config)
     self.UIVisible = true
     self.IsFlying = false
     self.IsNoClipping = false
-    self.IsGodMode = false
     
     -- Callback functions (to be set by Main.lua)
     self.OnToggleFly = function() end
     self.OnToggleNoClip = function() end
-    self.OnToggleGodMode = function() end
     self.OnIncreaseSpeed = function() end
     self.OnDecreaseSpeed = function() end
     
@@ -53,9 +63,9 @@ function UI:CreateUI()
     -- Create Main Frame
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
-    self.MainFrame.Size = UDim2.new(0, 200, 0, 220) -- Increased height for GodMode
-    self.MainFrame.Position = UDim2.new(0.85, -100, 0.3, 0)
-    self.MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    self.MainFrame.Size = UDim2.new(0, 220, 0, 180) -- Adjusted for removal of GodMode
+    self.MainFrame.Position = UDim2.new(0.85, -110, 0.3, 0)
+    self.MainFrame.BackgroundColor3 = Colors.Background
     self.MainFrame.BorderSizePixel = 0
     self.MainFrame.Active = true
     self.MainFrame.Draggable = true
@@ -66,11 +76,26 @@ function UI:CreateUI()
     UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = self.MainFrame
     
+    -- Add Shadow Effect
+    local Shadow = Instance.new("ImageLabel")
+    Shadow.Name = "Shadow"
+    Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+    Shadow.BackgroundTransparency = 1
+    Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Shadow.Size = UDim2.new(1, 20, 1, 20)
+    Shadow.ZIndex = -1
+    Shadow.Image = "rbxassetid://5554236805"
+    Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    Shadow.ImageTransparency = 0.6
+    Shadow.ScaleType = Enum.ScaleType.Slice
+    Shadow.SliceCenter = Rect.new(23, 23, 277, 277)
+    Shadow.Parent = self.MainFrame
+    
     -- Title Bar
     local TitleBar = Instance.new("Frame")
     TitleBar.Name = "TitleBar"
     TitleBar.Size = UDim2.new(1, 0, 0, 30)
-    TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    TitleBar.BackgroundColor3 = Colors.SecondaryBg
     TitleBar.BorderSizePixel = 0
     TitleBar.Parent = self.MainFrame
     
@@ -83,7 +108,7 @@ function UI:CreateUI()
     local FixCorners = Instance.new("Frame")
     FixCorners.Size = UDim2.new(1, 0, 0, 15)
     FixCorners.Position = UDim2.new(0, 0, 0.5, 0)
-    FixCorners.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    FixCorners.BackgroundColor3 = Colors.SecondaryBg
     FixCorners.BorderSizePixel = 0
     FixCorners.Parent = TitleBar
     
@@ -93,10 +118,10 @@ function UI:CreateUI()
     TitleText.Size = UDim2.new(1, -40, 1, 0)
     TitleText.Position = UDim2.new(0, 10, 0, 0)
     TitleText.BackgroundTransparency = 1
-    TitleText.Text = "AsherHub Tools"
-    TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleText.Text = "AsherHub"
+    TitleText.TextColor3 = Colors.TextPrimary
     TitleText.TextSize = 16
-    TitleText.Font = Enum.Font.SourceSansBold
+    TitleText.Font = Enum.Font.GothamBold
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
     TitleText.Parent = TitleBar
     
@@ -105,11 +130,11 @@ function UI:CreateUI()
     self.CloseButton.Name = "CloseButton"
     self.CloseButton.Size = UDim2.new(0, 24, 0, 24)
     self.CloseButton.Position = UDim2.new(1, -27, 0, 3)
-    self.CloseButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-    self.CloseButton.Text = "X"
-    self.CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    self.CloseButton.TextSize = 14
-    self.CloseButton.Font = Enum.Font.SourceSansBold
+    self.CloseButton.BackgroundColor3 = Colors.StatusOff
+    self.CloseButton.Text = "×"
+    self.CloseButton.TextColor3 = Colors.TextPrimary
+    self.CloseButton.TextSize = 18
+    self.CloseButton.Font = Enum.Font.GothamBold
     self.CloseButton.Parent = TitleBar
     
     -- Close Button Round Corners
@@ -120,9 +145,9 @@ function UI:CreateUI()
     -- Status Section
     local StatusFrame = Instance.new("Frame")
     StatusFrame.Name = "StatusFrame"
-    StatusFrame.Size = UDim2.new(1, -20, 0, 85) -- Increased height for GodMode status
+    StatusFrame.Size = UDim2.new(1, -20, 0, 55)
     StatusFrame.Position = UDim2.new(0, 10, 0, 40)
-    StatusFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    StatusFrame.BackgroundColor3 = Colors.SecondaryBg
     StatusFrame.BorderSizePixel = 0
     StatusFrame.Parent = self.MainFrame
     
@@ -136,12 +161,12 @@ function UI:CreateUI()
     self.FlyStatus.Name = "FlyStatus"
     self.FlyStatus.Size = UDim2.new(0.5, -5, 0, 25)
     self.FlyStatus.Position = UDim2.new(0, 10, 0, 5)
-    self.FlyStatus.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    self.FlyStatus.BackgroundColor3 = Colors.Background
     self.FlyStatus.BorderSizePixel = 0
     self.FlyStatus.Text = "Fly: OFF"
-    self.FlyStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
+    self.FlyStatus.TextColor3 = Colors.StatusOff
     self.FlyStatus.TextSize = 14
-    self.FlyStatus.Font = Enum.Font.SourceSans
+    self.FlyStatus.Font = Enum.Font.Gotham
     self.FlyStatus.Parent = StatusFrame
     
     -- Fly Status Round Corners
@@ -154,50 +179,32 @@ function UI:CreateUI()
     self.NoClipStatus.Name = "NoClipStatus"
     self.NoClipStatus.Size = UDim2.new(0.5, -5, 0, 25)
     self.NoClipStatus.Position = UDim2.new(0.5, -5, 0, 5)
-    self.NoClipStatus.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    self.NoClipStatus.BackgroundColor3 = Colors.Background
     self.NoClipStatus.BorderSizePixel = 0
     self.NoClipStatus.Text = "NoClip: OFF"
-    self.NoClipStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
+    self.NoClipStatus.TextColor3 = Colors.StatusOff
     self.NoClipStatus.TextSize = 14
-    self.NoClipStatus.Font = Enum.Font.SourceSans
+    self.NoClipStatus.Font = Enum.Font.Gotham
     self.NoClipStatus.Parent = StatusFrame
-    
-    -- GodMode Status
-    self.GodModeStatus = Instance.new("TextLabel")
-    self.GodModeStatus.Name = "GodModeStatus"
-    self.GodModeStatus.Size = UDim2.new(1, -20, 0, 25)
-    self.GodModeStatus.Position = UDim2.new(0, 10, 0, 35)
-    self.GodModeStatus.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    self.GodModeStatus.BorderSizePixel = 0
-    self.GodModeStatus.Text = "God Mode: OFF"
-    self.GodModeStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
-    self.GodModeStatus.TextSize = 14
-    self.GodModeStatus.Font = Enum.Font.SourceSans
-    self.GodModeStatus.Parent = StatusFrame
-    
-    -- GodMode Status Round Corners
-    local GodModeStatusCorner = Instance.new("UICorner")
-    GodModeStatusCorner.CornerRadius = UDim.new(0, 4)
-    GodModeStatusCorner.Parent = self.GodModeStatus
     
     -- Speed Label
     self.SpeedLabel = Instance.new("TextLabel")
     self.SpeedLabel.Name = "SpeedLabel"
     self.SpeedLabel.Size = UDim2.new(1, -20, 0, 20)
-    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 65)
+    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 35)
     self.SpeedLabel.BackgroundTransparency = 1
     self.SpeedLabel.Text = "Speed: " .. self.Config.FlySpeed
-    self.SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.SpeedLabel.TextColor3 = Colors.TextPrimary
     self.SpeedLabel.TextSize = 14
-    self.SpeedLabel.Font = Enum.Font.SourceSans
+    self.SpeedLabel.Font = Enum.Font.Gotham
     self.SpeedLabel.Parent = StatusFrame
     
     -- Controls Section
     local ControlsFrame = Instance.new("Frame")
     ControlsFrame.Name = "ControlsFrame"
-    ControlsFrame.Size = UDim2.new(1, -20, 0, 80)
-    ControlsFrame.Position = UDim2.new(0, 10, 0, 135) -- Adjusted position
-    ControlsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    ControlsFrame.Size = UDim2.new(1, -20, 0, 75)
+    ControlsFrame.Position = UDim2.new(0, 10, 0, 105)
+    ControlsFrame.BackgroundColor3 = Colors.SecondaryBg
     ControlsFrame.BorderSizePixel = 0
     ControlsFrame.Parent = self.MainFrame
     
@@ -210,13 +217,13 @@ function UI:CreateUI()
     -- Toggle Fly Button
     self.ToggleFlyButton = Instance.new("TextButton")
     self.ToggleFlyButton.Name = "ToggleFlyButton"
-    self.ToggleFlyButton.Size = UDim2.new(0.5, -15, 0, 25)
+    self.ToggleFlyButton.Size = UDim2.new(0.5, -15, 0, 30)
     self.ToggleFlyButton.Position = UDim2.new(0, 10, 0, 10)
-    self.ToggleFlyButton.BackgroundColor3 = Color3.fromRGB(60, 100, 200)
-    self.ToggleFlyButton.Text = "Toggle Fly (E)"
-    self.ToggleFlyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.ToggleFlyButton.BackgroundColor3 = Colors.HighlightButton
+    self.ToggleFlyButton.Text = "Fly (E)"
+    self.ToggleFlyButton.TextColor3 = Colors.TextPrimary
     self.ToggleFlyButton.TextSize = 14
-    self.ToggleFlyButton.Font = Enum.Font.SourceSans
+    self.ToggleFlyButton.Font = Enum.Font.GothamSemibold
     self.ToggleFlyButton.Parent = ControlsFrame
     
     -- Toggle Fly Button Round Corners
@@ -227,13 +234,13 @@ function UI:CreateUI()
     -- Toggle NoClip Button
     self.ToggleNoClipButton = Instance.new("TextButton")
     self.ToggleNoClipButton.Name = "ToggleNoClipButton"
-    self.ToggleNoClipButton.Size = UDim2.new(0.5, -15, 0, 25)
+    self.ToggleNoClipButton.Size = UDim2.new(0.5, -15, 0, 30)
     self.ToggleNoClipButton.Position = UDim2.new(0.5, 5, 0, 10)
-    self.ToggleNoClipButton.BackgroundColor3 = Color3.fromRGB(60, 100, 200)
-    self.ToggleNoClipButton.Text = "Toggle NoClip (C)"
-    self.ToggleNoClipButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.ToggleNoClipButton.BackgroundColor3 = Colors.HighlightButton
+    self.ToggleNoClipButton.Text = "NoClip (C)"
+    self.ToggleNoClipButton.TextColor3 = Colors.TextPrimary
     self.ToggleNoClipButton.TextSize = 14
-    self.ToggleNoClipButton.Font = Enum.Font.SourceSans
+    self.ToggleNoClipButton.Font = Enum.Font.GothamSemibold
     self.ToggleNoClipButton.Parent = ControlsFrame
     
     -- Toggle NoClip Button Round Corners
@@ -241,41 +248,24 @@ function UI:CreateUI()
     NoClipButtonCorner.CornerRadius = UDim.new(0, 4)
     NoClipButtonCorner.Parent = self.ToggleNoClipButton
     
-    -- Second row - God Mode Button
-    self.ToggleGodModeButton = Instance.new("TextButton")
-    self.ToggleGodModeButton.Name = "ToggleGodModeButton"
-    self.ToggleGodModeButton.Size = UDim2.new(1, -20, 0, 25)
-    self.ToggleGodModeButton.Position = UDim2.new(0, 10, 0, 45)
-    self.ToggleGodModeButton.BackgroundColor3 = Color3.fromRGB(180, 60, 180)
-    self.ToggleGodModeButton.Text = "Toggle God Mode (G)"
-    self.ToggleGodModeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    self.ToggleGodModeButton.TextSize = 14
-    self.ToggleGodModeButton.Font = Enum.Font.SourceSans
-    self.ToggleGodModeButton.Parent = ControlsFrame
-    
-    -- Toggle God Mode Button Round Corners
-    local GodModeButtonCorner = Instance.new("UICorner")
-    GodModeButtonCorner.CornerRadius = UDim.new(0, 4)
-    GodModeButtonCorner.Parent = self.ToggleGodModeButton
-    
     -- Speed Control Frame
     local SpeedControlFrame = Instance.new("Frame")
     SpeedControlFrame.Name = "SpeedControlFrame"
     SpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
     SpeedControlFrame.Position = UDim2.new(0, 10, 0, 45)
     SpeedControlFrame.BackgroundTransparency = 1
-    SpeedControlFrame.Parent = StatusFrame
+    SpeedControlFrame.Parent = ControlsFrame
     
     -- Speed Decrease Button
     self.SpeedDecreaseButton = Instance.new("TextButton")
     self.SpeedDecreaseButton.Name = "SpeedDecreaseButton"
     self.SpeedDecreaseButton.Size = UDim2.new(0, 25, 0, 25)
     self.SpeedDecreaseButton.Position = UDim2.new(0, 0, 0, 0)
-    self.SpeedDecreaseButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+    self.SpeedDecreaseButton.BackgroundColor3 = Colors.StatusOff
     self.SpeedDecreaseButton.Text = "-"
-    self.SpeedDecreaseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.SpeedDecreaseButton.TextColor3 = Colors.TextPrimary
     self.SpeedDecreaseButton.TextSize = 18
-    self.SpeedDecreaseButton.Font = Enum.Font.SourceSansBold
+    self.SpeedDecreaseButton.Font = Enum.Font.GothamBold
     self.SpeedDecreaseButton.Parent = SpeedControlFrame
     
     -- Speed Decrease Button Round Corners
@@ -288,7 +278,7 @@ function UI:CreateUI()
     SpeedBar.Name = "SpeedBar"
     SpeedBar.Size = UDim2.new(1, -60, 0, 25)
     SpeedBar.Position = UDim2.new(0, 30, 0, 0)
-    SpeedBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    SpeedBar.BackgroundColor3 = Colors.Background
     SpeedBar.BorderSizePixel = 0
     SpeedBar.Parent = SpeedControlFrame
     
@@ -301,7 +291,7 @@ function UI:CreateUI()
     self.SpeedFill = Instance.new("Frame")
     self.SpeedFill.Name = "SpeedFill"
     self.SpeedFill.Size = UDim2.new((self.Config.FlySpeed - self.Config.MinSpeed) / (self.Config.MaxSpeed - self.Config.MinSpeed), 0, 1, 0)
-    self.SpeedFill.BackgroundColor3 = Color3.fromRGB(60, 200, 100)
+    self.SpeedFill.BackgroundColor3 = Colors.Accent
     self.SpeedFill.BorderSizePixel = 0
     self.SpeedFill.Parent = SpeedBar
     
@@ -316,9 +306,9 @@ function UI:CreateUI()
     self.SpeedValue.Size = UDim2.new(1, 0, 1, 0)
     self.SpeedValue.BackgroundTransparency = 1
     self.SpeedValue.Text = self.Config.FlySpeed
-    self.SpeedValue.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.SpeedValue.TextColor3 = Colors.TextPrimary
     self.SpeedValue.TextSize = 14
-    self.SpeedValue.Font = Enum.Font.SourceSansBold
+    self.SpeedValue.Font = Enum.Font.GothamBold
     self.SpeedValue.Parent = SpeedBar
     
     -- Speed Increase Button
@@ -326,15 +316,53 @@ function UI:CreateUI()
     self.SpeedIncreaseButton.Name = "SpeedIncreaseButton"
     self.SpeedIncreaseButton.Size = UDim2.new(0, 25, 0, 25)
     self.SpeedIncreaseButton.Position = UDim2.new(1, -25, 0, 0)
-    self.SpeedIncreaseButton.BackgroundColor3 = Color3.fromRGB(60, 200, 100)
+    self.SpeedIncreaseButton.BackgroundColor3 = Colors.StatusOn
     self.SpeedIncreaseButton.Text = "+"
-    self.SpeedIncreaseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.SpeedIncreaseButton.TextColor3 = Colors.TextPrimary
     self.SpeedIncreaseButton.TextSize = 18
-    self.SpeedIncreaseButton.Font = Enum.Font.SourceSansBold
+    self.SpeedIncreaseButton.Font = Enum.Font.GothamBold
     self.SpeedIncreaseButton.Parent = SpeedControlFrame
+    
+    -- Add hover effects
+    self:AddButtonEffects(self.ToggleFlyButton, Colors.HighlightButton)
+    self:AddButtonEffects(self.ToggleNoClipButton, Colors.HighlightButton)
+    self:AddButtonEffects(self.SpeedDecreaseButton, Colors.StatusOff)
+    self:AddButtonEffects(self.SpeedIncreaseButton, Colors.StatusOn)
+    self:AddButtonEffects(self.CloseButton, Colors.StatusOff)
     
     -- Connect button events
     self:ConnectEvents()
+end
+
+function UI:AddButtonEffects(button, defaultColor)
+    local originalColor = defaultColor
+    local hoverColor = Color3.new(
+        math.min(originalColor.R * 1.1, 1),
+        math.min(originalColor.G * 1.1, 1),
+        math.min(originalColor.B * 1.1, 1)
+    )
+    
+    local clickColor = Color3.new(
+        originalColor.R * 0.9,
+        originalColor.G * 0.9,
+        originalColor.B * 0.9
+    )
+    
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor}):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = originalColor}):Play()
+    end)
+    
+    button.MouseButton1Down:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = clickColor}):Play()
+    end)
+    
+    button.MouseButton1Up:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = hoverColor}):Play()
+    end)
 end
 
 function UI:ConnectEvents()
@@ -345,10 +373,6 @@ function UI:ConnectEvents()
     
     self.ToggleNoClipButton.MouseButton1Click:Connect(function()
         self.OnToggleNoClip()
-    end)
-    
-    self.ToggleGodModeButton.MouseButton1Click:Connect(function()
-        self.OnToggleGodMode()
     end)
     
     self.SpeedDecreaseButton.MouseButton1Click:Connect(function()
@@ -369,10 +393,10 @@ function UI:UpdateFlyStatus(isFlying)
     
     if isFlying then
         self.FlyStatus.Text = "Fly: ON"
-        self.FlyStatus.TextColor3 = Color3.fromRGB(60, 200, 100)
+        self.FlyStatus.TextColor3 = Colors.StatusOn
     else
         self.FlyStatus.Text = "Fly: OFF"
-        self.FlyStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
+        self.FlyStatus.TextColor3 = Colors.StatusOff
     end
 end
 
@@ -381,22 +405,10 @@ function UI:UpdateNoClipStatus(isNoClipping)
     
     if isNoClipping then
         self.NoClipStatus.Text = "NoClip: ON"
-        self.NoClipStatus.TextColor3 = Color3.fromRGB(60, 200, 100)
+        self.NoClipStatus.TextColor3 = Colors.StatusOn
     else
         self.NoClipStatus.Text = "NoClip: OFF"
-        self.NoClipStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
-    end
-end
-
-function UI:UpdateGodModeStatus(isGodMode)
-    self.IsGodMode = isGodMode
-    
-    if isGodMode then
-        self.GodModeStatus.Text = "God Mode: ON"
-        self.GodModeStatus.TextColor3 = Color3.fromRGB(60, 200, 100)
-    else
-        self.GodModeStatus.Text = "God Mode: OFF"
-        self.GodModeStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
+        self.NoClipStatus.TextColor3 = Colors.StatusOff
     end
 end
 
@@ -405,20 +417,35 @@ function UI:UpdateSpeed(speed)
     self.SpeedValue.Text = speed
     self.SpeedLabel.Text = "Speed: " .. speed
     
-    -- Update speed fill bar
+    -- Update speed fill bar with smooth animation
     local fillRatio = (speed - self.Config.MinSpeed) / (self.Config.MaxSpeed - self.Config.MinSpeed)
-    self.SpeedFill:TweenSize(
-        UDim2.new(fillRatio, 0, 1, 0),
-        Enum.EasingDirection.Out,
-        Enum.EasingStyle.Quad,
-        0.2,
-        true
-    )
+    TweenService:Create(
+        self.SpeedFill,
+        TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Size = UDim2.new(fillRatio, 0, 1, 0)}
+    ):Play()
 end
 
 function UI:ToggleVisibility()
     self.UIVisible = not self.UIVisible
-    self.MainFrame.Visible = self.UIVisible
+    
+    if not self.UIVisible then
+        -- Fade out effect
+        for i = 1, 10 do
+            self.MainFrame.Transparency = i/10
+            wait(0.01)
+        end
+        self.MainFrame.Visible = false
+        self.MainFrame.Transparency = 0
+    else
+        -- Fade in effect
+        self.MainFrame.Transparency = 1
+        self.MainFrame.Visible = true
+        for i = 10, 0, -1 do
+            self.MainFrame.Transparency = i/10
+            wait(0.01)
+        end
+    end
 end
 
 function UI:IsVisible()
