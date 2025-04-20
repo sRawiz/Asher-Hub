@@ -42,18 +42,18 @@ local Controls = {
 
 -- สร้าง UI
 local UIVisible = true
-local HelaFlyGui = Instance.new("ScreenGui")
-HelaFlyGui.Name = "HelaFlyGui"
-HelaFlyGui.ResetOnSpawn = false
+local AsherHubGui = Instance.new("ScreenGui")
+AsherHubGui.Name = "AsherHubGui"
+AsherHubGui.ResetOnSpawn = false
 
 -- พยายามตั้งค่า Parent เป็น CoreGui ถ้าเป็นไปได้ (ป้องกันไม่ให้ UI หายเมื่อ reset character)
 local success, result = pcall(function()
-    HelaFlyGui.Parent = CoreGui
+    AsherHubGui.Parent = CoreGui
     return true
 end)
 
 if not success then
-    HelaFlyGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    AsherHubGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 end
 
 -- สร้าง Main Frame
@@ -65,7 +65,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
-MainFrame.Parent = HelaFlyGui
+MainFrame.Parent = AsherHubGui
 
 -- เพิ่มความโค้งมนให้กับ Frame
 local UICorner = Instance.new("UICorner")
@@ -99,7 +99,7 @@ TitleText.Name = "TitleText"
 TitleText.Size = UDim2.new(1, -40, 1, 0)
 TitleText.Position = UDim2.new(0, 10, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "Asher Hub | Fly & NoClip"
+TitleText.Text = "AsherHub Fly & NoClip"
 TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleText.TextSize = 16
 TitleText.Font = Enum.Font.SourceSansBold
