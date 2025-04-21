@@ -179,64 +179,71 @@ Tabs.Settings:AddParagraph({
     Content = "Customize your keyboard shortcuts"
 })
 
--- Fly Keybind - FIXED: Changed to only handle the keybind change, not toggle functionality
+-- Fly Keybind
 local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
     Title = "Fly Toggle Key",
     Description = "Key to toggle flight mode",
-    Default = Configuration.ToggleFlyKey,
+    Default = Configuration.ToggleFlyKey.Name,
     Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleFlyKey = NewKey
     end
 })
 
--- NoClip Keybind - FIXED: Changed to only handle the keybind change, not toggle functionality
+FlyKeybind:OnClick(function()
+    FlyToggle:SetValue(not FlyToggle.Value)
+end)
+
+-- NoClip Keybind
 local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
     Title = "NoClip Toggle Key",
     Description = "Key to toggle noclip mode",
-    Default = Configuration.ToggleNoClipKey,
+    Default = Configuration.ToggleNoClipKey.Name,
     Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleNoClipKey = NewKey
     end
 })
 
--- Invisible Keybind - FIXED: Changed to only handle the keybind change, not toggle functionality
+NoClipKeybind:OnClick(function()
+    NoClipToggle:SetValue(not NoClipToggle.Value)
+end)
+
+-- Invisible Keybind
 local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
     Title = "Invisible Toggle Key",
     Description = "Key to toggle invisibility",
-    Default = Configuration.ToggleInvisibleKey,
+    Default = Configuration.ToggleInvisibleKey.Name,
     Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleInvisibleKey = NewKey
     end
 })
 
--- Set up keyboard controls - FIXED: Only handle keybinds here, avoid duplicate calls
-local UserInputService = game:GetService("UserInputService")
+InvisibleKeybind:OnClick(function()
+    InvisibleToggle:SetValue(not InvisibleToggle.Value)
+end)
 
--- Create variable to track which notification is showing
-local activeNotifications = {
-    fly = false,
-    noclip = false,
-    invisible = false
-}
+-- Set up keyboard controls
+local UserInputService = game:GetService("UserInputService")
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     if GameProcessedEvent then return end
     
     local KeyCode = Input.KeyCode
     
-    -- Handle toggle functions
     if KeyCode == Configuration.ToggleFlyKey then
         FlyToggle:SetValue(not FlyToggle.Value)
-    elseif KeyCode == Configuration.ToggleNoClipKey then
+    end
+    
+    if KeyCode == Configuration.ToggleNoClipKey then
         NoClipToggle:SetValue(not NoClipToggle.Value)
-    elseif KeyCode == Configuration.ToggleInvisibleKey then
+    end
+    
+    if KeyCode == Configuration.ToggleInvisibleKey then
         InvisibleToggle:SetValue(not InvisibleToggle.Value)
     end
     
-    -- Handle speed adjustments
     if KeyCode == Configuration.SpeedIncreaseKey then
         local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
         FlySpeedSlider:SetValue(newSpeed)
@@ -245,7 +252,6 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
         FlySpeedSlider:SetValue(newSpeed)
     end
     
-    -- Pass input to flyInterface
     flyInterface:HandleInput(KeyCode, true)
 end)
 
