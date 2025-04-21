@@ -57,6 +57,9 @@ local IsInvisible = false
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+-- Options reference
+local Options = Fluent.Options
+
 -- Welcome Notification
 Fluent:Notify({
     Title = "AsherHub Loaded",
@@ -179,52 +182,55 @@ Tabs.Settings:AddParagraph({
     Content = "Customize your keyboard shortcuts"
 })
 
--- Fly Keybind
+-- Fly Keybind - แก้ไขส่วนนี้
 local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
     Title = "Fly Toggle Key",
     Description = "Key to toggle flight mode",
-    Default = Configuration.ToggleFlyKey.Name,
-    Mode = "Toggle",
+    Default = Configuration.ToggleFlyKey,
+    Mode = "Toggle", -- กำหนด Mode เป็น Toggle
+    Callback = function(Value)
+        if Value then -- จะทำงานเมื่อกดปุ่ม และ Mode เป็น Toggle
+            FlyToggle:SetValue(not FlyToggle.Value)
+        end
+    end,
     ChangedCallback = function(NewKey)
         Configuration.ToggleFlyKey = NewKey
     end
 })
 
-FlyKeybind:OnClick(function()
-    FlyToggle:SetValue(not FlyToggle.Value)
-end)
-
--- NoClip Keybind
+-- NoClip Keybind - แก้ไขส่วนนี้
 local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
     Title = "NoClip Toggle Key",
     Description = "Key to toggle noclip mode",
-    Default = Configuration.ToggleNoClipKey.Name,
-    Mode = "Toggle",
+    Default = Configuration.ToggleNoClipKey,
+    Mode = "Toggle", -- กำหนด Mode เป็น Toggle
+    Callback = function(Value)
+        if Value then -- จะทำงานเมื่อกดปุ่ม และ Mode เป็น Toggle
+            NoClipToggle:SetValue(not NoClipToggle.Value)
+        end
+    end,
     ChangedCallback = function(NewKey)
         Configuration.ToggleNoClipKey = NewKey
     end
 })
 
-NoClipKeybind:OnClick(function()
-    NoClipToggle:SetValue(not NoClipToggle.Value)
-end)
-
--- Invisible Keybind
+-- Invisible Keybind - แก้ไขส่วนนี้
 local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
     Title = "Invisible Toggle Key",
     Description = "Key to toggle invisibility",
-    Default = Configuration.ToggleInvisibleKey.Name,
-    Mode = "Toggle",
+    Default = Configuration.ToggleInvisibleKey,
+    Mode = "Toggle", -- กำหนด Mode เป็น Toggle
+    Callback = function(Value)
+        if Value then -- จะทำงานเมื่อกดปุ่ม และ Mode เป็น Toggle
+            InvisibleToggle:SetValue(not InvisibleToggle.Value)
+        end
+    end,
     ChangedCallback = function(NewKey)
         Configuration.ToggleInvisibleKey = NewKey
     end
 })
 
-InvisibleKeybind:OnClick(function()
-    InvisibleToggle:SetValue(not InvisibleToggle.Value)
-end)
-
--- Set up keyboard controls
+-- Set up keyboard controls สำหรับ Speed Increase/Decrease (ปุ่มที่ไม่ใช่ keybind)
 local UserInputService = game:GetService("UserInputService")
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
@@ -232,18 +238,7 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     
     local KeyCode = Input.KeyCode
     
-    if KeyCode == Configuration.ToggleFlyKey then
-        FlyToggle:SetValue(not FlyToggle.Value)
-    end
-    
-    if KeyCode == Configuration.ToggleNoClipKey then
-        NoClipToggle:SetValue(not NoClipToggle.Value)
-    end
-    
-    if KeyCode == Configuration.ToggleInvisibleKey then
-        InvisibleToggle:SetValue(not InvisibleToggle.Value)
-    end
-    
+    -- ตรวจจับปุ่มเพิ่ม/ลดความเร็ว
     if KeyCode == Configuration.SpeedIncreaseKey then
         local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
         FlySpeedSlider:SetValue(newSpeed)
