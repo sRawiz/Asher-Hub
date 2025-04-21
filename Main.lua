@@ -2,7 +2,7 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- โหลดโมดูลจาก GitHub
+-- โหลดโมดูลทั้งหมด
 local FlyModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/FlyModule.lua"))()
 local InvisibleModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/InvisibleModule.lua"))()
 local NoClipModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/NoClipModule.lua"))()
@@ -15,7 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local Configuration = {
     FlySpeed = 25,
     ToggleFlyKey = Enum.KeyCode.E,
-    ToggleNoClipKey = Enum.KeyCode.C,
+    ToggleNoClipKey = Enum.KeyCode.C,  
     ToggleInvisibleKey = Enum.KeyCode.X,
     SpeedIncreaseKey = Enum.KeyCode.Q,
     SpeedDecreaseKey = Enum.KeyCode.Z,
@@ -28,8 +28,8 @@ local Configuration = {
 
 -- สร้าง Instance ของโมดูลต่างๆ
 local flyInterface = FlyModule.new(Configuration)
-local noClipInterface = NoClipModule.new()
 local invisibleInterface = InvisibleModule.new()
+local noClipInterface = NoClipModule.new()
 
 -- สถานะการใช้งาน
 local IsFlying = false
@@ -59,7 +59,7 @@ local Options = Fluent.Options
 -- แสดงการแจ้งเตือนเมื่อโหลดสคริปต์
 Fluent:Notify({
     Title = "AsherHub",
-    Content = "AsherHub has been loaded successfully!",
+    Content = "AsherHub ได้โหลดเสร็จสมบูรณ์แล้ว!",
     Duration = 5
 })
 
@@ -69,7 +69,7 @@ local MovementSection = Tabs.Main:AddSection("Movement")
 -- เพิ่ม Toggle สำหรับ Fly
 local FlyToggle = Tabs.Main:AddToggle("FlyToggle", {
     Title = "Fly",
-    Description = "Allows you to fly around the map",
+    Description = "อนุญาตให้คุณบินรอบแมพ",
     Default = IsFlying
 })
 
@@ -77,16 +77,18 @@ FlyToggle:OnChanged(function()
     if Options.FlyToggle.Value then
         flyInterface:Start()
         IsFlying = true
+        print("เริ่มการบิน")
     else
         flyInterface:Stop()
         IsFlying = false
+        print("หยุดการบิน")
     end
 end)
 
 -- เพิ่ม Toggle สำหรับ NoClip
 local NoClipToggle = Tabs.Main:AddToggle("NoClipToggle", {
     Title = "NoClip",
-    Description = "Allows you to walk through walls",
+    Description = "อนุญาตให้คุณเดินทะลุกำแพง",
     Default = IsNoClipping
 })
 
@@ -94,16 +96,18 @@ NoClipToggle:OnChanged(function()
     if Options.NoClipToggle.Value then
         noClipInterface:Enable()
         IsNoClipping = true
+        print("เปิดใช้งาน NoClip")
     else
         noClipInterface:Disable()
         IsNoClipping = false
+        print("ปิดใช้งาน NoClip")
     end
 end)
 
 -- เพิ่ม Slider สำหรับ Fly Speed
 local SpeedSlider = Tabs.Main:AddSlider("FlySpeed", {
     Title = "Fly Speed",
-    Description = "Adjust your flying speed",
+    Description = "ปรับความเร็วในการบิน",
     Default = Configuration.FlySpeed,
     Min = Configuration.MinSpeed,
     Max = Configuration.MaxSpeed,
@@ -111,6 +115,7 @@ local SpeedSlider = Tabs.Main:AddSlider("FlySpeed", {
     Callback = function(Value)
         Configuration.FlySpeed = Value
         flyInterface.Config.FlySpeed = Value
+        print("ตั้งค่าความเร็วการบินเป็น: " .. Value)
     end
 })
 
@@ -120,7 +125,7 @@ local VisibilitySection = Tabs.Main:AddSection("Visibility")
 -- เพิ่ม Toggle สำหรับ Invisible
 local InvisibleToggle = Tabs.Main:AddToggle("InvisibleToggle", {
     Title = "Invisible",
-    Description = "Makes your character invisible to yourself",
+    Description = "ทำให้ตัวละครของคุณมองไม่เห็น",
     Default = IsInvisible
 })
 
@@ -128,19 +133,29 @@ InvisibleToggle:OnChanged(function()
     if Options.InvisibleToggle.Value then
         invisibleInterface:Enable()
         IsInvisible = true
+        print("เปิดใช้งานการล่องหน")
     else
         invisibleInterface:Disable()
         IsInvisible = false
+        print("ปิดใช้งานการล่องหน")
     end
 end)
 
 -- สร้าง Section Controls ใน Tab Settings
 local KeybindsSection = Tabs.Settings:AddSection("Keybinds")
 
+-- แก้ไขการแสดงผลคีย์ตัวเองให้เป็นข้อความ
+local function KeyToString(key)
+    if typeof(key) == "EnumItem" then
+        return tostring(key):gsub("Enum.KeyCode.", "")
+    end
+    return tostring(key)
+end
+
 -- เพิ่ม Keybind สำหรับ Toggle Fly
 local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
     Title = "Toggle Fly",
-    Description = "Key to toggle flying mode",
+    Description = "ปุ่มสำหรับเปิด/ปิดโหมดบิน",
     Default = Configuration.ToggleFlyKey,
     Mode = "Toggle",
     Callback = function(Value)
@@ -153,7 +168,7 @@ local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
 -- เพิ่ม Keybind สำหรับ Toggle NoClip
 local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
     Title = "Toggle NoClip",
-    Description = "Key to toggle noclip mode",
+    Description = "ปุ่มสำหรับเปิด/ปิดโหมด NoClip",
     Default = Configuration.ToggleNoClipKey,
     Mode = "Toggle",
     Callback = function(Value)
@@ -166,8 +181,8 @@ local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
 -- เพิ่ม Keybind สำหรับ Toggle Invisible
 local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
     Title = "Toggle Invisible",
-    Description = "Key to toggle invisibility",
-    Default = Configuration.ToggleInvisibleKey,
+    Description = "ปุ่มสำหรับเปิด/ปิดโหมดล่องหน",
+    Default = Configuration.ToggleInvisibleKey, 
     Mode = "Toggle",
     Callback = function(Value)
         if Value then
@@ -179,7 +194,7 @@ local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
 -- เพิ่ม Keybind สำหรับเพิ่มความเร็ว
 local SpeedUpKeybind = Tabs.Settings:AddKeybind("SpeedUpKeybind", {
     Title = "Increase Speed",
-    Description = "Key to increase fly speed",
+    Description = "ปุ่มสำหรับเพิ่มความเร็วการบิน",
     Default = Configuration.SpeedIncreaseKey,
     Mode = "Toggle",
     Callback = function(Value)
@@ -193,7 +208,7 @@ local SpeedUpKeybind = Tabs.Settings:AddKeybind("SpeedUpKeybind", {
 -- เพิ่ม Keybind สำหรับลดความเร็ว
 local SpeedDownKeybind = Tabs.Settings:AddKeybind("SpeedDownKeybind", {
     Title = "Decrease Speed",
-    Description = "Key to decrease fly speed",
+    Description = "ปุ่มสำหรับลดความเร็วการบิน",
     Default = Configuration.SpeedDecreaseKey,
     Mode = "Toggle",
     Callback = function(Value)
@@ -206,20 +221,42 @@ local SpeedDownKeybind = Tabs.Settings:AddKeybind("SpeedDownKeybind", {
 
 -- เพิ่ม Paragraph แสดงข้อมูลการใช้งาน
 Tabs.Main:AddParagraph({
-    Title = "How to Use",
-    Content = "Press E to toggle fly mode\nPress C to toggle noclip mode\nPress X to toggle invisibility\nPress Q to increase fly speed\nPress Z to decrease fly speed\nPress Right Control to toggle UI"
+    Title = "วิธีใช้งาน",
+    Content = "กด E เพื่อเปิด/ปิดโหมดบิน\nกด C เพื่อเปิด/ปิดโหมดเดินทะลุ\nกด X เพื่อเปิด/ปิดโหมดล่องหน\nกด Q เพื่อเพิ่มความเร็วการบิน\nกด Z เพื่อลดความเร็วการบิน\nกด Right Control เพื่อเปิด/ปิด UI"
 })
 
--- เพิ่ม Input Handler สำหรับควบคุมการบิน
+-- การตรวจจับการกดปุ่มควบคุมทั้งหมด
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     if GameProcessedEvent then return end
     
+    -- ตรวจสอบว่ากดปุ่มที่กำหนดไว้หรือไม่โดยตรง
     local KeyCode = Input.KeyCode
-    flyInterface:HandleInput(KeyCode, true)
+    
+    if KeyCode == Configuration.ToggleFlyKey then
+        FlyToggle:SetValue(not Options.FlyToggle.Value)
+    elseif KeyCode == Configuration.ToggleNoClipKey then
+        NoClipToggle:SetValue(not Options.NoClipToggle.Value)
+    elseif KeyCode == Configuration.ToggleInvisibleKey then
+        InvisibleToggle:SetValue(not Options.InvisibleToggle.Value)
+    elseif KeyCode == Configuration.SpeedIncreaseKey then
+        local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
+        SpeedSlider:SetValue(newSpeed)
+    elseif KeyCode == Configuration.SpeedDecreaseKey then
+        local newSpeed = math.max(Configuration.FlySpeed - Configuration.SpeedIncrement, Configuration.MinSpeed)
+        SpeedSlider:SetValue(newSpeed)
+    end
+    
+    -- ส่งข้อมูลการควบคุมการบินไปยังโมดูล Fly
+    if IsFlying then
+        flyInterface:HandleInput(KeyCode, true)
+    end
 end)
 
 UserInputService.InputEnded:Connect(function(Input)
-    flyInterface:HandleInput(Input.KeyCode, false)
+    -- ส่งข้อมูลการปล่อยปุ่มไปยังโมดูล Fly
+    if IsFlying then
+        flyInterface:HandleInput(Input.KeyCode, false)
+    end
 end)
 
 -- ตั้งค่า Character สำหรับโมดูลต่างๆ เมื่อเกิด Character ใหม่
@@ -228,6 +265,7 @@ LocalPlayer.CharacterAdded:Connect(function(Character)
     noClipInterface:SetCharacter(Character)
     invisibleInterface:SetCharacter(Character)
     
+    -- ตั้งค่าสถานะอีกครั้งหลังเกิดใหม่
     if IsFlying then
         flyInterface:Stop()
         task.wait(0.5)
@@ -268,4 +306,4 @@ Window:SelectTab(1)
 -- โหลดการตั้งค่าอัตโนมัติ (ถ้ามี)
 SaveManager:LoadAutoloadConfig()
 
-print("AsherHub loaded successfully!")
+print("AsherHub โหลดเสร็จสมบูรณ์!")
