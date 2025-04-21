@@ -14,8 +14,8 @@ local NoClipModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local Configuration = {
     FlySpeed = 25,
     ToggleFlyKey = Enum.KeyCode.E,
-    ToggleNoClipKey = Enum.KeyCode.C, -- Changed from N to C to match the description
-    ToggleInvisibleKey = Enum.KeyCode.I,
+    ToggleNoClipKey = Enum.KeyCode.N,
+    ToggleInvisibleKey = Enum.KeyCode.I, 
     SpeedIncreaseKey = Enum.KeyCode.Q,
     SpeedDecreaseKey = Enum.KeyCode.Z,
     MaxSpeed = 100,
@@ -149,7 +149,7 @@ Tabs.Character:AddParagraph({
 -- Invisible Toggle
 local InvisibleToggle = Tabs.Character:AddToggle("InvisibleToggle", {
     Title = "Invisible",
-    Description = "Toggle invisibility (Default key: I)",
+    Description = "Toggle invisibility (Default key: X)",
     Default = false
 })
 
@@ -183,14 +183,13 @@ Tabs.Settings:AddParagraph({
 local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
     Title = "Fly Toggle Key",
     Description = "Key to toggle flight mode",
-    Default = Configuration.ToggleFlyKey,
+    Default = Configuration.ToggleFlyKey.Name,
     Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleFlyKey = NewKey
     end
 })
 
--- Use OnClick instead of duplicating the toggle functionality
 FlyKeybind:OnClick(function()
     FlyToggle:SetValue(not FlyToggle.Value)
 end)
@@ -199,14 +198,13 @@ end)
 local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
     Title = "NoClip Toggle Key",
     Description = "Key to toggle noclip mode",
-    Default = Configuration.ToggleNoClipKey,
+    Default = Configuration.ToggleNoClipKey.Name,
     Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleNoClipKey = NewKey
     end
 })
 
--- Use OnClick instead of duplicating the toggle functionality
 NoClipKeybind:OnClick(function()
     NoClipToggle:SetValue(not NoClipToggle.Value)
 end)
@@ -215,14 +213,13 @@ end)
 local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
     Title = "Invisible Toggle Key",
     Description = "Key to toggle invisibility",
-    Default = Configuration.ToggleInvisibleKey,
+    Default = Configuration.ToggleInvisibleKey.Name,
     Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleInvisibleKey = NewKey
     end
 })
 
--- Use OnClick instead of duplicating the toggle functionality
 InvisibleKeybind:OnClick(function()
     InvisibleToggle:SetValue(not InvisibleToggle.Value)
 end)
@@ -235,8 +232,18 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     
     local KeyCode = Input.KeyCode
     
-    -- Only handle speed adjustment with direct keyboard input
-    -- Toggle functions are now handled by the Keybinds
+    if KeyCode == Configuration.ToggleFlyKey then
+        FlyToggle:SetValue(not FlyToggle.Value)
+    end
+    
+    if KeyCode == Configuration.ToggleNoClipKey then
+        NoClipToggle:SetValue(not NoClipToggle.Value)
+    end
+    
+    if KeyCode == Configuration.ToggleInvisibleKey then
+        InvisibleToggle:SetValue(not InvisibleToggle.Value)
+    end
+    
     if KeyCode == Configuration.SpeedIncreaseKey then
         local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
         FlySpeedSlider:SetValue(newSpeed)
