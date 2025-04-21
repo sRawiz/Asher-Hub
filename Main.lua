@@ -14,8 +14,8 @@ local NoClipModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local Configuration = {
     FlySpeed = 25,
     ToggleFlyKey = Enum.KeyCode.E,
-    ToggleNoClipKey = Enum.KeyCode.C,
-    ToggleInvisibleKey = Enum.KeyCode.X, 
+    ToggleNoClipKey = Enum.KeyCode.C, -- Changed from N to C to match the description
+    ToggleInvisibleKey = Enum.KeyCode.I,
     SpeedIncreaseKey = Enum.KeyCode.Q,
     SpeedDecreaseKey = Enum.KeyCode.Z,
     MaxSpeed = 100,
@@ -56,9 +56,6 @@ local IsInvisible = false
 -- Setup Players reference
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-
--- Options reference
-local Options = Fluent.Options
 
 -- Welcome Notification
 Fluent:Notify({
@@ -152,7 +149,7 @@ Tabs.Character:AddParagraph({
 -- Invisible Toggle
 local InvisibleToggle = Tabs.Character:AddToggle("InvisibleToggle", {
     Title = "Invisible",
-    Description = "Toggle invisibility (Default key: X)",
+    Description = "Toggle invisibility (Default key: I)",
     Default = false
 })
 
@@ -182,55 +179,55 @@ Tabs.Settings:AddParagraph({
     Content = "Customize your keyboard shortcuts"
 })
 
--- Fly Keybind - แก้ไขส่วนนี้
+-- Fly Keybind
 local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
     Title = "Fly Toggle Key",
     Description = "Key to toggle flight mode",
     Default = Configuration.ToggleFlyKey,
-    Mode = "Toggle", -- กำหนด Mode เป็น Toggle
-    Callback = function(Value)
-        if Value then -- จะทำงานเมื่อกดปุ่ม และ Mode เป็น Toggle
-            FlyToggle:SetValue(not FlyToggle.Value)
-        end
-    end,
+    Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleFlyKey = NewKey
     end
 })
 
--- NoClip Keybind - แก้ไขส่วนนี้
+-- Use OnClick instead of duplicating the toggle functionality
+FlyKeybind:OnClick(function()
+    FlyToggle:SetValue(not FlyToggle.Value)
+end)
+
+-- NoClip Keybind
 local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
     Title = "NoClip Toggle Key",
     Description = "Key to toggle noclip mode",
     Default = Configuration.ToggleNoClipKey,
-    Mode = "Toggle", -- กำหนด Mode เป็น Toggle
-    Callback = function(Value)
-        if Value then -- จะทำงานเมื่อกดปุ่ม และ Mode เป็น Toggle
-            NoClipToggle:SetValue(not NoClipToggle.Value)
-        end
-    end,
+    Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleNoClipKey = NewKey
     end
 })
 
--- Invisible Keybind - แก้ไขส่วนนี้
+-- Use OnClick instead of duplicating the toggle functionality
+NoClipKeybind:OnClick(function()
+    NoClipToggle:SetValue(not NoClipToggle.Value)
+end)
+
+-- Invisible Keybind
 local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
     Title = "Invisible Toggle Key",
     Description = "Key to toggle invisibility",
     Default = Configuration.ToggleInvisibleKey,
-    Mode = "Toggle", -- กำหนด Mode เป็น Toggle
-    Callback = function(Value)
-        if Value then -- จะทำงานเมื่อกดปุ่ม และ Mode เป็น Toggle
-            InvisibleToggle:SetValue(not InvisibleToggle.Value)
-        end
-    end,
+    Mode = "Toggle",
     ChangedCallback = function(NewKey)
         Configuration.ToggleInvisibleKey = NewKey
     end
 })
 
--- Set up keyboard controls สำหรับ Speed Increase/Decrease (ปุ่มที่ไม่ใช่ keybind)
+-- Use OnClick instead of duplicating the toggle functionality
+InvisibleKeybind:OnClick(function()
+    InvisibleToggle:SetValue(not InvisibleToggle.Value)
+end)
+
+-- Set up keyboard controls
 local UserInputService = game:GetService("UserInputService")
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
@@ -238,7 +235,8 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     
     local KeyCode = Input.KeyCode
     
-    -- ตรวจจับปุ่มเพิ่ม/ลดความเร็ว
+    -- Only handle speed adjustment with direct keyboard input
+    -- Toggle functions are now handled by the Keybinds
     if KeyCode == Configuration.SpeedIncreaseKey then
         local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
         FlySpeedSlider:SetValue(newSpeed)
