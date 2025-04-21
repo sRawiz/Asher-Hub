@@ -2,10 +2,10 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- โหลดโมดูลจาก Features Folder
-local FlyModule = loadstring(readfile("Features/FlyModule.lua"))()
-local InvisibleModule = loadstring(readfile("Features/InvisibleModule.lua"))()
-local NoClipModule = loadstring(readfile("Features/NoClipModule.lua"))()
+-- โหลดโมดูลจาก Features
+local FlyModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/FlyModule.lua"))()
+local InvisibleModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/InvisibleModule.lua"))()
+local NoClipModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/NoClipModule.lua"))()
 
 -- สร้างอินสแตนซ์ของแต่ละโมดูล
 local flySystem = FlyModule.new({
