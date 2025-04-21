@@ -184,12 +184,13 @@ local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
     Title = "Fly Toggle Key",
     Description = "Key to toggle flight mode",
     Default = Configuration.ToggleFlyKey.Name,
-    Mode = "Toggle",
+    Mode = "Toggle", -- แก้ไข Mode เป็น Toggle จาก KeyDown
     ChangedCallback = function(NewKey)
         Configuration.ToggleFlyKey = NewKey
     end
 })
 
+-- แก้ไขเพื่อให้ FlyKeybind ทำงานโดยตรงกับ FlyToggle
 FlyKeybind:OnClick(function()
     FlyToggle:SetValue(not FlyToggle.Value)
 end)
@@ -199,12 +200,13 @@ local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
     Title = "NoClip Toggle Key",
     Description = "Key to toggle noclip mode",
     Default = Configuration.ToggleNoClipKey.Name,
-    Mode = "Toggle",
+    Mode = "Toggle", -- แก้ไข Mode เป็น Toggle จาก KeyDown
     ChangedCallback = function(NewKey)
         Configuration.ToggleNoClipKey = NewKey
     end
 })
 
+-- แก้ไขเพื่อให้ NoClipKeybind ทำงานโดยตรงกับ NoClipToggle
 NoClipKeybind:OnClick(function()
     NoClipToggle:SetValue(not NoClipToggle.Value)
 end)
@@ -214,51 +216,102 @@ local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
     Title = "Invisible Toggle Key",
     Description = "Key to toggle invisibility",
     Default = Configuration.ToggleInvisibleKey.Name,
-    Mode = "Toggle",
+    Mode = "Toggle", -- แก้ไข Mode เป็น Toggle จาก KeyDown
     ChangedCallback = function(NewKey)
         Configuration.ToggleInvisibleKey = NewKey
     end
 })
 
+-- แก้ไขเพื่อให้ InvisibleKeybind ทำงานโดยตรงกับ InvisibleToggle
 InvisibleKeybind:OnClick(function()
     InvisibleToggle:SetValue(not InvisibleToggle.Value)
 end)
 
--- Set up keyboard controls
+-- ปรับปรุงระบบการจัดการ Input ให้ดีขึ้น
 local UserInputService = game:GetService("UserInputService")
 
--- Fix: Add debounce for keyboard controls
-local keyDebounce = false
-local debounceTime = 0.3 -- in seconds
+-- ลบคำสั่งระบบ debounce เดิมและปรับปรุงใหม่
+local keyPressTime = {}
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     if GameProcessedEvent then return end
-    if keyDebounce then return end
     
     local KeyCode = Input.KeyCode
+    local currentTime = tick()
     
+    -- ป้องกันการกดปุ่มที่เร็วเกินไป แต่ให้กดได้เลยถ้าปุ่มนั้นยังไม่เคยถูกกด
+    if keyPressTime[KeyCode] and (currentTime - keyPressTime[KeyCode] < 0.2) then
+        return
+    end
+    
+    keyPressTime[KeyCode] = currentTime
+    
+    -- ตรวจสอบปุ่มและสั่งการทำงานของฟังก์ชันแต่ละปุ่ม
     if KeyCode == Configuration.ToggleFlyKey then
-        keyDebounce = true
-        FlyToggle:SetValue(not FlyToggle.Value)
-        task.delay(debounceTime, function()
-            keyDebounce = false
-        end)
+        -- เรียกใช้ฟังก์ชันโดยตรงแทนการใช้ToggleValue
+        if IsFlying then
+            flyInterface:Stop()
+            IsFlying = false
+            FlyToggle:SetValue(false)
+            Fluent:Notify({
+                Title = "Fly Disabled",
+                Content = "Flight mode turned off",
+                Duration = 2
+            })
+        else
+            flyInterface:Start()
+            IsFlying = true
+            FlyToggle:SetValue(true)
+            Fluent:Notify({
+                Title = "Fly Enabled",
+                Content = "Use WASD to move, Space to go up, Shift to go down",
+                Duration = 3
+            })
+        end
     end
     
     if KeyCode == Configuration.ToggleNoClipKey then
-        keyDebounce = true
-        NoClipToggle:SetValue(not NoClipToggle.Value)
-        task.delay(debounceTime, function()
-            keyDebounce = false
-        end)
+        if IsNoClipping then
+            noClipInterface:Disable()
+            IsNoClipping = false
+            NoClipToggle:SetValue(false)
+            Fluent:Notify({
+                Title = "NoClip Disabled",
+                Content = "Collision returned to normal",
+                Duration = 2
+            })
+        else
+            noClipInterface:Enable()
+            IsNoClipping = true
+            NoClipToggle:SetValue(true)
+            Fluent:Notify({
+                Title = "NoClip Enabled",
+                Content = "You can now pass through objects",
+                Duration = 2
+            })
+        end
     end
     
     if KeyCode == Configuration.ToggleInvisibleKey then
-        keyDebounce = true
-        InvisibleToggle:SetValue(not InvisibleToggle.Value)
-        task.delay(debounceTime, function()
-            keyDebounce = false
-        end)
+        if IsInvisible then
+            invisibleInterface:Disable()
+            IsInvisible = false
+            InvisibleToggle:SetValue(false)
+            Fluent:Notify({
+                Title = "Invisibility Disabled",
+                Content = "You are now visible to other players",
+                Duration = 2
+            })
+        else
+            invisibleInterface:Enable()
+            IsInvisible = true
+            InvisibleToggle:SetValue(true)
+            Fluent:Notify({
+                Title = "Invisibility Enabled",
+                Content = "You are now invisible to other players",
+                Duration = 2
+            })
+        end
     end
     
     if KeyCode == Configuration.SpeedIncreaseKey then
