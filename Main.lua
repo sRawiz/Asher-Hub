@@ -227,21 +227,38 @@ end)
 -- Set up keyboard controls
 local UserInputService = game:GetService("UserInputService")
 
+-- Fix: Add debounce for keyboard controls
+local keyDebounce = false
+local debounceTime = 0.3 -- in seconds
+
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     if GameProcessedEvent then return end
+    if keyDebounce then return end
     
     local KeyCode = Input.KeyCode
     
     if KeyCode == Configuration.ToggleFlyKey then
+        keyDebounce = true
         FlyToggle:SetValue(not FlyToggle.Value)
+        task.delay(debounceTime, function()
+            keyDebounce = false
+        end)
     end
     
     if KeyCode == Configuration.ToggleNoClipKey then
+        keyDebounce = true
         NoClipToggle:SetValue(not NoClipToggle.Value)
+        task.delay(debounceTime, function()
+            keyDebounce = false
+        end)
     end
     
     if KeyCode == Configuration.ToggleInvisibleKey then
+        keyDebounce = true
         InvisibleToggle:SetValue(not InvisibleToggle.Value)
+        task.delay(debounceTime, function()
+            keyDebounce = false
+        end)
     end
     
     if KeyCode == Configuration.SpeedIncreaseKey then
