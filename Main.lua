@@ -1,22 +1,21 @@
+-- AsherHub with Fluent UI Integration
+
+-- Load Fluent UI Library and Addons
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- โหลดโมดูล
+-- Load AsherHub Modules
 local FlyModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/FlyModule.lua"))()
 local InvisibleModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/InvisibleModule.lua"))()
 local NoClipModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/sRawiz/Asher-Hub/main/Features/NoClipModule.lua"))()
 
--- ตั้งค่าเริ่มต้น
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-
+-- Configuration
 local Configuration = {
     FlySpeed = 25,
     ToggleFlyKey = Enum.KeyCode.E,
-    ToggleNoClipKey = Enum.KeyCode.C,  
-    ToggleInvisibleKey = Enum.KeyCode.X,
+    ToggleNoClipKey = Enum.KeyCode.C,
+    ToggleInvisibleKey = Enum.KeyCode.X, 
     SpeedIncreaseKey = Enum.KeyCode.Q,
     SpeedDecreaseKey = Enum.KeyCode.Z,
     MaxSpeed = 100,
@@ -26,18 +25,10 @@ local Configuration = {
     ToggleUIKey = Enum.KeyCode.RightControl
 }
 
--- สร้าง Instance ของโมดูลต่างๆ
-local flyInterface = FlyModule.new(Configuration)
-
--- สถานะการใช้งาน
-local IsFlying = false
-local IsNoClipping = false
-local IsInvisible = false
-
--- สร้าง UI Window
+-- Initialize Fluent UI Window
 local Window = Fluent:CreateWindow({
-    Title = "AsherHub " .. "v1.0.0",
-    SubTitle = "by Asher",
+    Title = "AsherHub " .. Fluent.Version,
+    SubTitle = "by sRawiz",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -45,242 +36,269 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Configuration.ToggleUIKey
 })
 
--- สร้าง Tab ใน UI
+-- Create Tabs
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+    Movement = Window:AddTab({ Title = "Movement", Icon = "move" }),
+    Character = Window:AddTab({ Title = "Character", Icon = "user" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
--- เก็บ Options สำหรับ Fluent
-local Options = Fluent.Options
+-- Setup module interfaces
+local flyInterface = FlyModule.new(Configuration)
+local noClipInterface = NoClipModule.new()
+local invisibleInterface = InvisibleModule.new()
 
--- แสดงการแจ้งเตือนเมื่อโหลดสคริปต์
+-- Track states
+local IsFlying = false
+local IsNoClipping = false
+local IsInvisible = false
+
+-- Setup Players reference
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Welcome Notification
 Fluent:Notify({
-    Title = "AsherHub",
-    Content = "AsherHub has been loaded successfully!",
+    Title = "AsherHub Loaded",
+    Content = "Welcome to AsherHub with Fluent UI!",
     Duration = 5
 })
 
--- สร้าง Section Movement ใน Tab Main
-local MovementSection = Tabs.Main:AddSection("Movement")
+-- Movement Tab Content
+Tabs.Movement:AddParagraph({
+    Title = "Movement Controls",
+    Content = "Enhance your mobility with flight and noclip features."
+})
 
--- เพิ่ม Toggle สำหรับ Fly
-local FlyToggle = Tabs.Main:AddToggle("FlyToggle", {
+-- Fly Toggle
+local FlyToggle = Tabs.Movement:AddToggle("FlyToggle", {
     Title = "Fly",
-    Description = "Allows you to fly around the map",
-    Default = IsFlying
+    Description = "Toggle flying ability (Default key: E)",
+    Default = false
 })
 
 FlyToggle:OnChanged(function()
-    if Options.FlyToggle.Value then
+    if FlyToggle.Value then
         flyInterface:Start()
         IsFlying = true
+        Fluent:Notify({
+            Title = "Fly Enabled",
+            Content = "Use WASD to move, Space to go up, Shift to go down",
+            Duration = 3
+        })
     else
         flyInterface:Stop()
         IsFlying = false
+        Fluent:Notify({
+            Title = "Fly Disabled",
+            Content = "Flight mode turned off",
+            Duration = 2
+        })
     end
 end)
 
--- เพิ่ม Toggle สำหรับ NoClip
-local NoClipToggle = Tabs.Main:AddToggle("NoClipToggle", {
+-- NoClip Toggle
+local NoClipToggle = Tabs.Movement:AddToggle("NoClipToggle", {
     Title = "NoClip",
-    Description = "Allows you to walk through walls",
-    Default = IsNoClipping
+    Description = "Toggle noclip through walls (Default key: C)",
+    Default = false
 })
 
 NoClipToggle:OnChanged(function()
-    if Options.NoClipToggle.Value then
-        -- ในอนาคตเพิ่ม NoClip
+    if NoClipToggle.Value then
+        noClipInterface:Enable()
         IsNoClipping = true
+        Fluent:Notify({
+            Title = "NoClip Enabled",
+            Content = "You can now pass through objects",
+            Duration = 2
+        })
     else
-        -- ในอนาคตเพิ่ม NoClip
+        noClipInterface:Disable()
         IsNoClipping = false
+        Fluent:Notify({
+            Title = "NoClip Disabled",
+            Content = "Collision returned to normal",
+            Duration = 2
+        })
     end
 end)
 
--- เพิ่ม Slider สำหรับ Fly Speed
-local SpeedSlider = Tabs.Main:AddSlider("FlySpeed", {
+-- Fly Speed Slider
+local FlySpeedSlider = Tabs.Movement:AddSlider("FlySpeed", {
     Title = "Fly Speed",
-    Description = "Adjust your flying speed",
+    Description = "Adjust your flight speed",
     Default = Configuration.FlySpeed,
     Min = Configuration.MinSpeed,
     Max = Configuration.MaxSpeed,
     Rounding = 0,
     Callback = function(Value)
         Configuration.FlySpeed = Value
-        flyInterface.Config.FlySpeed = Value
+        if flyInterface then
+            flyInterface.Config.FlySpeed = Value
+        end
     end
 })
 
--- สร้าง Section Visibility ใน Tab Main
-local VisibilitySection = Tabs.Main:AddSection("Visibility")
+-- Character Tab Content
+Tabs.Character:AddParagraph({
+    Title = "Character Modifications",
+    Content = "Modify your character's appearance and physics."
+})
 
--- เพิ่ม Toggle สำหรับ Invisible
-local InvisibleToggle = Tabs.Main:AddToggle("InvisibleToggle", {
+-- Invisible Toggle
+local InvisibleToggle = Tabs.Character:AddToggle("InvisibleToggle", {
     Title = "Invisible",
-    Description = "Makes your character invisible to yourself",
-    Default = IsInvisible
+    Description = "Toggle invisibility (Default key: X)",
+    Default = false
 })
 
 InvisibleToggle:OnChanged(function()
-    if Options.InvisibleToggle.Value then
-        -- ในอนาคตเพิ่ม Invisible
+    if InvisibleToggle.Value then
+        invisibleInterface:Enable()
         IsInvisible = true
+        Fluent:Notify({
+            Title = "Invisibility Enabled",
+            Content = "You are now invisible to other players",
+            Duration = 2
+        })
     else
-        -- ในอนาคตเพิ่ม Invisible
+        invisibleInterface:Disable()
         IsInvisible = false
+        Fluent:Notify({
+            Title = "Invisibility Disabled",
+            Content = "You are now visible to other players",
+            Duration = 2
+        })
     end
 end)
 
--- สร้าง Section Controls ใน Tab Settings
-local KeybindsSection = Tabs.Settings:AddSection("Keybinds")
+-- Keybind section in Settings tab
+Tabs.Settings:AddParagraph({
+    Title = "Keybinds",
+    Content = "Customize your keyboard shortcuts"
+})
 
--- แก้ไขการแสดงผลคีย์ตัวเองให้เป็นข้อความ
-local function KeyToString(key)
-    if typeof(key) == "EnumItem" then
-        return tostring(key):gsub("Enum.KeyCode.", "")
-    end
-    return tostring(key)
-end
-
--- เพิ่ม Keybind สำหรับ Toggle Fly
+-- Fly Keybind
 local FlyKeybind = Tabs.Settings:AddKeybind("FlyKeybind", {
-    Title = "Toggle Fly",
-    Description = "Key to toggle flying mode",
-    Default = Configuration.ToggleFlyKey,
+    Title = "Fly Toggle Key",
+    Description = "Key to toggle flight mode",
+    Default = Configuration.ToggleFlyKey.Name,
     Mode = "Toggle",
-    Callback = function(Value)
-        if Value then
-            FlyToggle:SetValue(not Options.FlyToggle.Value)
-        end
+    ChangedCallback = function(NewKey)
+        Configuration.ToggleFlyKey = NewKey
     end
 })
 
--- เพิ่ม Keybind สำหรับ Toggle NoClip
+FlyKeybind:OnClick(function()
+    FlyToggle:SetValue(not FlyToggle.Value)
+end)
+
+-- NoClip Keybind
 local NoClipKeybind = Tabs.Settings:AddKeybind("NoClipKeybind", {
-    Title = "Toggle NoClip",
+    Title = "NoClip Toggle Key",
     Description = "Key to toggle noclip mode",
-    Default = Configuration.ToggleNoClipKey,
+    Default = Configuration.ToggleNoClipKey.Name,
     Mode = "Toggle",
-    Callback = function(Value)
-        if Value then
-            NoClipToggle:SetValue(not Options.NoClipToggle.Value)
-        end
+    ChangedCallback = function(NewKey)
+        Configuration.ToggleNoClipKey = NewKey
     end
 })
 
--- เพิ่ม Keybind สำหรับ Toggle Invisible
+NoClipKeybind:OnClick(function()
+    NoClipToggle:SetValue(not NoClipToggle.Value)
+end)
+
+-- Invisible Keybind
 local InvisibleKeybind = Tabs.Settings:AddKeybind("InvisibleKeybind", {
-    Title = "Toggle Invisible",
+    Title = "Invisible Toggle Key",
     Description = "Key to toggle invisibility",
-    Default = Configuration.ToggleInvisibleKey, 
+    Default = Configuration.ToggleInvisibleKey.Name,
     Mode = "Toggle",
-    Callback = function(Value)
-        if Value then
-            InvisibleToggle:SetValue(not Options.InvisibleToggle.Value)
-        end
+    ChangedCallback = function(NewKey)
+        Configuration.ToggleInvisibleKey = NewKey
     end
 })
 
--- เพิ่ม Keybind สำหรับเพิ่มความเร็ว
-local SpeedUpKeybind = Tabs.Settings:AddKeybind("SpeedUpKeybind", {
-    Title = "Increase Speed",
-    Description = "Key to increase fly speed",
-    Default = Configuration.SpeedIncreaseKey,
-    Mode = "Toggle",
-    Callback = function(Value)
-        if Value then
-            local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
-            SpeedSlider:SetValue(newSpeed)
-        end
-    end
-})
+InvisibleKeybind:OnClick(function()
+    InvisibleToggle:SetValue(not InvisibleToggle.Value)
+end)
 
--- เพิ่ม Keybind สำหรับลดความเร็ว
-local SpeedDownKeybind = Tabs.Settings:AddKeybind("SpeedDownKeybind", {
-    Title = "Decrease Speed",
-    Description = "Key to decrease fly speed",
-    Default = Configuration.SpeedDecreaseKey,
-    Mode = "Toggle",
-    Callback = function(Value)
-        if Value then
-            local newSpeed = math.max(Configuration.FlySpeed - Configuration.SpeedIncrement, Configuration.MinSpeed)
-            SpeedSlider:SetValue(newSpeed)
-        end
-    end
-})
+-- Set up keyboard controls
+local UserInputService = game:GetService("UserInputService")
 
--- เพิ่ม Paragraph แสดงข้อมูลการใช้งาน
-Tabs.Main:AddParagraph({
-    Title = "How to Use",
-    Content = "Press E to toggle fly mode\nPress C to toggle noclip mode\nPress X to toggle invisibility\nPress Q to increase fly speed\nPress Z to decrease fly speed\nPress Right Control to toggle UI"
-})
-
--- การตรวจจับการกดปุ่มควบคุมการบิน
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
     if GameProcessedEvent then return end
     
-    -- ตรวจสอบว่ากดปุ่มที่กำหนดไว้หรือไม่โดยตรง
-    if Input.KeyCode == Configuration.ToggleFlyKey then
-        FlyToggle:SetValue(not Options.FlyToggle.Value)
-    elseif Input.KeyCode == Configuration.ToggleNoClipKey then
-        NoClipToggle:SetValue(not Options.NoClipToggle.Value)
-    elseif Input.KeyCode == Configuration.ToggleInvisibleKey then
-        InvisibleToggle:SetValue(not Options.InvisibleToggle.Value)
-    elseif Input.KeyCode == Configuration.SpeedIncreaseKey then
-        local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
-        SpeedSlider:SetValue(newSpeed)
-    elseif Input.KeyCode == Configuration.SpeedDecreaseKey then
-        local newSpeed = math.max(Configuration.FlySpeed - Configuration.SpeedIncrement, Configuration.MinSpeed)
-        SpeedSlider:SetValue(newSpeed)
+    local KeyCode = Input.KeyCode
+    
+    if KeyCode == Configuration.ToggleFlyKey then
+        FlyToggle:SetValue(not FlyToggle.Value)
     end
     
-    -- ส่งข้อมูลการควบคุมการบินไปยังโมดูล Fly
-    if IsFlying then
-        flyInterface:HandleInput(Input.KeyCode, true)
+    if KeyCode == Configuration.ToggleNoClipKey then
+        NoClipToggle:SetValue(not NoClipToggle.Value)
     end
+    
+    if KeyCode == Configuration.ToggleInvisibleKey then
+        InvisibleToggle:SetValue(not InvisibleToggle.Value)
+    end
+    
+    if KeyCode == Configuration.SpeedIncreaseKey then
+        local newSpeed = math.min(Configuration.FlySpeed + Configuration.SpeedIncrement, Configuration.MaxSpeed)
+        FlySpeedSlider:SetValue(newSpeed)
+    elseif KeyCode == Configuration.SpeedDecreaseKey then
+        local newSpeed = math.max(Configuration.FlySpeed - Configuration.SpeedIncrement, Configuration.MinSpeed)
+        FlySpeedSlider:SetValue(newSpeed)
+    end
+    
+    flyInterface:HandleInput(KeyCode, true)
 end)
 
 UserInputService.InputEnded:Connect(function(Input)
-    -- ส่งข้อมูลการปล่อยปุ่มไปยังโมดูล Fly
-    if IsFlying then
-        flyInterface:HandleInput(Input.KeyCode, false)
-    end
+    flyInterface:HandleInput(Input.KeyCode, false)
 end)
 
--- ตั้งค่า Character สำหรับโมดูลต่างๆ เมื่อเกิด Character ใหม่
+-- Handle character respawning
 LocalPlayer.CharacterAdded:Connect(function(Character)
     flyInterface:SetCharacter(Character)
+    noClipInterface:SetCharacter(Character)
+    invisibleInterface:SetCharacter(Character)
     
-    -- ตั้งค่าสถานะอีกครั้งหลังเกิดใหม่
+    -- Re-enable features if they were active before
     if IsFlying then
         flyInterface:Stop()
         task.wait(0.5)
         flyInterface:Start()
     end
+    
+    if IsNoClipping then
+        noClipInterface:Enable()
+    end
+    
+    if IsInvisible then
+        invisibleInterface:Enable()
+    end
 end)
 
--- ตั้งค่า Character เริ่มต้น
+-- Initialize with current character
 if LocalPlayer.Character then
     flyInterface:SetCharacter(LocalPlayer.Character)
+    noClipInterface:SetCharacter(LocalPlayer.Character)
+    invisibleInterface:SetCharacter(LocalPlayer.Character)
 end
 
--- เพิ่ม Interface Manager และ Save Manager
-InterfaceManager:SetLibrary(Fluent)
+-- Set up SaveManager and InterfaceManager
 SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({"FlyToggle", "NoClipToggle", "InvisibleToggle"})
-
+SaveManager:SetIgnoreIndexes({"FlyKeybind", "NoClipKeybind", "InvisibleKeybind"})
 InterfaceManager:SetFolder("AsherHub")
 SaveManager:SetFolder("AsherHub/configs")
-
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
--- เลือก Tab แรกโดยอัตโนมัติ
+-- Select first tab by default
 Window:SelectTab(1)
 
--- โหลดการตั้งค่าอัตโนมัติ (ถ้ามี)
-SaveManager:LoadAutoloadConfig()
-
-print("AsherHub loaded successfully!")
+print("AsherHub with Fluent UI loaded successfully!")
