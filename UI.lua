@@ -72,8 +72,8 @@ function UI:CreateUI()
     -- Create Main Frame
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
-    self.MainFrame.Size = UDim2.new(0, 300, 0, 280) -- Increased height from 230 to 280
-    self.MainFrame.Position = UDim2.new(0.85, -150, 0.3, 0) -- Adjusted position
+    self.MainFrame.Size = UDim2.new(0, 300, 0, 400) -- เพิ่มความสูงเป็น 400
+    self.MainFrame.Position = UDim2.new(0.85, -150, 0.3, 0)
     self.MainFrame.BackgroundColor3 = Colors.Background
     self.MainFrame.BorderSizePixel = 0
     self.MainFrame.Active = true
@@ -154,7 +154,7 @@ function UI:CreateUI()
     -- Status Section
     local StatusFrame = Instance.new("Frame")
     StatusFrame.Name = "StatusFrame"
-    StatusFrame.Size = UDim2.new(1, -20, 0, 85) -- Increased height for Invisible status
+    StatusFrame.Size = UDim2.new(1, -20, 0, 120) -- เพิ่มความสูงเพื่อรองรับ WalkSpeed status
     StatusFrame.Position = UDim2.new(0, 10, 0, 40)
     StatusFrame.BackgroundColor3 = Colors.SecondaryBg
     StatusFrame.BorderSizePixel = 0
@@ -196,19 +196,14 @@ function UI:CreateUI()
     self.NoClipStatus.Font = Enum.Font.Gotham
     self.NoClipStatus.Parent = StatusFrame
 
-    -- Walk Speed Status Round Corners
-    local WalkSpeedStatusCorner = Instance.new("UICorner")
-    WalkSpeedStatusCorner.CornerRadius = UDim.new(0, 4)
-    WalkSpeedStatusCorner.Parent = self.WalkSpeedStatus
-
     -- WalkSpeed Status
     self.WalkSpeedStatus = Instance.new("TextLabel")
     self.WalkSpeedStatus.Name = "WalkSpeedStatus"
     self.WalkSpeedStatus.Size = UDim2.new(0.5, -5, 0, 25)
-    self.WalkSpeedStatus.Position = UDim2.new(0.5, -5, 0, 35) -- Position right of NoClip
+    self.WalkSpeedStatus.Position = UDim2.new(0.5, -5, 0, 35)
     self.WalkSpeedStatus.BackgroundColor3 = Colors.Background
     self.WalkSpeedStatus.BorderSizePixel = 0
-    self.WalkSpeedStatus.Text = "Speed: OFF"
+    self.WalkSpeedStatus.Text = "Walk Speed: OFF"
     self.WalkSpeedStatus.TextColor3 = Colors.StatusOff
     self.WalkSpeedStatus.TextSize = 14
     self.WalkSpeedStatus.Font = Enum.Font.Gotham
@@ -218,7 +213,7 @@ function UI:CreateUI()
     self.InvisibleStatus = Instance.new("TextLabel")
     self.InvisibleStatus.Name = "InvisibleStatus"
     self.InvisibleStatus.Size = UDim2.new(1, -20, 0, 25)
-    self.InvisibleStatus.Position = UDim2.new(0, 10, 0, 35)
+    self.InvisibleStatus.Position = UDim2.new(0, 10, 0, 65)
     self.InvisibleStatus.BackgroundColor3 = Colors.Background
     self.InvisibleStatus.BorderSizePixel = 0
     self.InvisibleStatus.Text = "Invisible: OFF"
@@ -236,7 +231,7 @@ function UI:CreateUI()
     self.SpeedLabel = Instance.new("TextLabel")
     self.SpeedLabel.Name = "SpeedLabel"
     self.SpeedLabel.Size = UDim2.new(1, -20, 0, 20)
-    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 65)
+    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 95)
     self.SpeedLabel.BackgroundTransparency = 1
     self.SpeedLabel.Text = "Speed: " .. self.Config.FlySpeed
     self.SpeedLabel.TextColor3 = Colors.TextPrimary
@@ -247,8 +242,8 @@ function UI:CreateUI()
     -- Controls Section
     local ControlsFrame = Instance.new("Frame")
     ControlsFrame.Name = "ControlsFrame"
-    ControlsFrame.Size = UDim2.new(1, -20, 0, 95)     -- Increased height for Invisible button
-    ControlsFrame.Position = UDim2.new(0, 10, 0, 135) -- Adjusted position
+    ControlsFrame.Size = UDim2.new(1, -20, 0, 230) -- เพิ่มความสูงเพื่อรองรับ sliders
+    ControlsFrame.Position = UDim2.new(0, 10, 0, 170) -- ปรับตำแหน่งให้อยู่ถัดจาก StatusFrame
     ControlsFrame.BackgroundColor3 = Colors.SecondaryBg
     ControlsFrame.BorderSizePixel = 0
     ControlsFrame.Parent = self.MainFrame
@@ -293,11 +288,11 @@ function UI:CreateUI()
     NoClipButtonCorner.CornerRadius = UDim.new(0, 4)
     NoClipButtonCorner.Parent = self.ToggleNoClipButton
 
-    -- Toggle Walk Speed Button
+    -- Toggle WalkSpeed Button
     self.ToggleWalkSpeedButton = Instance.new("TextButton")
     self.ToggleWalkSpeedButton.Name = "ToggleWalkSpeedButton"
     self.ToggleWalkSpeedButton.Size = UDim2.new(0.5, -15, 0, 30)
-    self.ToggleWalkSpeedButton.Position = UDim2.new(0.5, 5, 0, 45) -- Position next to Toggle NoClip
+    self.ToggleWalkSpeedButton.Position = UDim2.new(0, 10, 0, 45)
     self.ToggleWalkSpeedButton.BackgroundColor3 = Colors.HighlightButton
     self.ToggleWalkSpeedButton.Text = "Walk Speed (R)"
     self.ToggleWalkSpeedButton.TextColor3 = Colors.TextPrimary
@@ -305,7 +300,7 @@ function UI:CreateUI()
     self.ToggleWalkSpeedButton.Font = Enum.Font.GothamSemibold
     self.ToggleWalkSpeedButton.Parent = ControlsFrame
 
-    -- Toggle Walk Speed Button Round Corners
+    -- Toggle WalkSpeed Button Round Corners
     local WalkSpeedButtonCorner = Instance.new("UICorner")
     WalkSpeedButtonCorner.CornerRadius = UDim.new(0, 4)
     WalkSpeedButtonCorner.Parent = self.ToggleWalkSpeedButton
@@ -314,7 +309,7 @@ function UI:CreateUI()
     self.ToggleInvisibleButton = Instance.new("TextButton")
     self.ToggleInvisibleButton.Name = "ToggleInvisibleButton"
     self.ToggleInvisibleButton.Size = UDim2.new(1, -20, 0, 30)
-    self.ToggleInvisibleButton.Position = UDim2.new(0, 10, 0, 45)
+    self.ToggleInvisibleButton.Position = UDim2.new(0, 10, 0, 80)
     self.ToggleInvisibleButton.BackgroundColor3 = Colors.HighlightButton
     self.ToggleInvisibleButton.Text = "Invisible (X)"
     self.ToggleInvisibleButton.TextColor3 = Colors.TextPrimary
@@ -331,7 +326,7 @@ function UI:CreateUI()
     local SpeedControlFrame = Instance.new("Frame")
     SpeedControlFrame.Name = "SpeedControlFrame"
     SpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
-    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 150) -- Adjusted position
+    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 130) -- ปรับตำแหน่งให้อยู่ภายใน ControlsFrame
     SpeedControlFrame.BackgroundTransparency = 1
     SpeedControlFrame.Parent = ControlsFrame
 
@@ -405,9 +400,9 @@ function UI:CreateUI()
 
     -- Walk Speed Control Frame
     local WalkSpeedControlFrame = Instance.new("Frame")
-    WalkSpeedControlFrame.Name = "WalkSpeedControlFrame" 
+    WalkSpeedControlFrame.Name = "WalkSpeedControlFrame"
     WalkSpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
-    WalkSpeedControlFrame.Position = UDim2.new(0, 10, 0, 185) -- Position below Speed Control
+    WalkSpeedControlFrame.Position = UDim2.new(0, 10, 0, 165) -- ปรับตำแหน่งให้อยู่ถัดจาก SpeedControlFrame
     WalkSpeedControlFrame.BackgroundTransparency = 1
     WalkSpeedControlFrame.Parent = ControlsFrame
 
