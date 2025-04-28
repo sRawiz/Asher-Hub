@@ -72,7 +72,7 @@ function UI:CreateUI()
     -- Create Main Frame
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
-    self.MainFrame.Size = UDim2.new(0, 300, 0, 230) -- Changed width from 220 to 300
+    self.MainFrame.Size = UDim2.new(0, 300, 0, 280) -- Increased height from 230 to 280
     self.MainFrame.Position = UDim2.new(0.85, -150, 0.3, 0) -- Adjusted position
     self.MainFrame.BackgroundColor3 = Colors.Background
     self.MainFrame.BorderSizePixel = 0
@@ -297,7 +297,7 @@ function UI:CreateUI()
     self.ToggleWalkSpeedButton = Instance.new("TextButton")
     self.ToggleWalkSpeedButton.Name = "ToggleWalkSpeedButton"
     self.ToggleWalkSpeedButton.Size = UDim2.new(0.5, -15, 0, 30)
-    self.ToggleWalkSpeedButton.Position = UDim2.new(0, 10, 0, 80) -- Position below Invisible
+    self.ToggleWalkSpeedButton.Position = UDim2.new(0.5, 5, 0, 45) -- Position next to Toggle NoClip
     self.ToggleWalkSpeedButton.BackgroundColor3 = Colors.HighlightButton
     self.ToggleWalkSpeedButton.Text = "Walk Speed (R)"
     self.ToggleWalkSpeedButton.TextColor3 = Colors.TextPrimary
@@ -331,7 +331,7 @@ function UI:CreateUI()
     local SpeedControlFrame = Instance.new("Frame")
     SpeedControlFrame.Name = "SpeedControlFrame"
     SpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
-    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 80) -- Adjusted position
+    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 150) -- Adjusted position
     SpeedControlFrame.BackgroundTransparency = 1
     SpeedControlFrame.Parent = ControlsFrame
 
@@ -407,7 +407,7 @@ function UI:CreateUI()
     local WalkSpeedControlFrame = Instance.new("Frame")
     WalkSpeedControlFrame.Name = "WalkSpeedControlFrame" 
     WalkSpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
-    WalkSpeedControlFrame.Position = UDim2.new(0, 10, 0, 115) -- Position below Speed Control
+    WalkSpeedControlFrame.Position = UDim2.new(0, 10, 0, 185) -- Position below Speed Control
     WalkSpeedControlFrame.BackgroundTransparency = 1
     WalkSpeedControlFrame.Parent = ControlsFrame
 
@@ -598,10 +598,11 @@ function UI:UpdateWalkSpeedStatus(isEnabled, speed)
     self.IsWalkSpeedModified = isEnabled
     
     if isEnabled then
-        self.WalkSpeedStatus.Text = "Speed: " .. speed
+        self.WalkSpeedStatus.Text = "Walk Speed: ON"
         self.WalkSpeedStatus.TextColor3 = Colors.StatusOn
+        self:UpdateWalkSpeed(speed)
     else
-        self.WalkSpeedStatus.Text = "Speed: OFF"
+        self.WalkSpeedStatus.Text = "Walk Speed: OFF"
         self.WalkSpeedStatus.TextColor3 = Colors.StatusOff
     end
 end
@@ -635,7 +636,7 @@ end
 function UI:UpdateWalkSpeed(speed)
     -- Update walk speed value
     self.WalkSpeedValue.Text = speed
-
+    
     -- Update walk speed fill bar with smooth animation
     local fillRatio = (speed - self.Config.MinWalkSpeed) / (self.Config.MaxWalkSpeed - self.Config.MinWalkSpeed)
     TweenService:Create(

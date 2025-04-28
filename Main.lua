@@ -136,6 +136,20 @@ uiInterface.OnDecreaseSpeed = function()
     uiInterface:UpdateSpeed(newSpeed)
 end
 
+uiInterface.OnIncreaseWalkSpeed = function()
+    if IsWalkSpeedModified then
+        local newSpeed = walkSpeedInterface:AdjustSpeed(Configuration.SpeedIncrement)
+        uiInterface:UpdateWalkSpeedStatus(true, newSpeed)
+    end
+end
+
+uiInterface.OnDecreaseWalkSpeed = function()
+    if IsWalkSpeedModified then
+        local newSpeed = walkSpeedInterface:AdjustSpeed(-Configuration.SpeedIncrement)
+        uiInterface:UpdateWalkSpeedStatus(true, newSpeed)
+    end
+end
+
 local UserInputService = game:GetService("UserInputService")
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
