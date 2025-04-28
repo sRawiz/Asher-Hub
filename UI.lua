@@ -25,7 +25,10 @@ function UI.new(config)
         FlySpeed = 25,
         MaxSpeed = 100,
         MinSpeed = 5,
-        SpeedIncrement = 5
+        SpeedIncrement = 5,
+        WalkSpeed = 16,
+        MaxWalkSpeed = 50,
+        MinWalkSpeed = 10
     }
 
     self.UIVisible = true
@@ -41,6 +44,8 @@ function UI.new(config)
     self.OnIncreaseSpeed = function() end
     self.OnDecreaseSpeed = function() end
     self.OnToggleWalkSpeed = function() end
+    self.OnIncreaseWalkSpeed = function() end
+    self.OnDecreaseWalkSpeed = function() end
 
     -- Create UI
     self:CreateUI()
@@ -67,8 +72,8 @@ function UI:CreateUI()
     -- Create Main Frame
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
-    self.MainFrame.Size = UDim2.new(0, 220, 0, 230) -- Increased height for Invisible status
-    self.MainFrame.Position = UDim2.new(0.85, -110, 0.3, 0)
+    self.MainFrame.Size = UDim2.new(0, 300, 0, 230) -- Changed width from 220 to 300
+    self.MainFrame.Position = UDim2.new(0.85, -150, 0.3, 0) -- Adjusted position
     self.MainFrame.BackgroundColor3 = Colors.Background
     self.MainFrame.BorderSizePixel = 0
     self.MainFrame.Active = true
@@ -398,6 +403,84 @@ function UI:CreateUI()
     self.SpeedIncreaseButton.Font = Enum.Font.GothamBold
     self.SpeedIncreaseButton.Parent = SpeedControlFrame
 
+    -- Walk Speed Control Frame
+    local WalkSpeedControlFrame = Instance.new("Frame")
+    WalkSpeedControlFrame.Name = "WalkSpeedControlFrame" 
+    WalkSpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
+    WalkSpeedControlFrame.Position = UDim2.new(0, 10, 0, 115) -- Position below Speed Control
+    WalkSpeedControlFrame.BackgroundTransparency = 1
+    WalkSpeedControlFrame.Parent = ControlsFrame
+
+    -- Walk Speed Decrease Button
+    self.WalkSpeedDecreaseButton = Instance.new("TextButton")
+    self.WalkSpeedDecreaseButton.Name = "WalkSpeedDecreaseButton"
+    self.WalkSpeedDecreaseButton.Size = UDim2.new(0, 25, 0, 25)
+    self.WalkSpeedDecreaseButton.Position = UDim2.new(0, 0, 0, 0)
+    self.WalkSpeedDecreaseButton.BackgroundColor3 = Colors.StatusOff
+    self.WalkSpeedDecreaseButton.Text = "-"
+    self.WalkSpeedDecreaseButton.TextColor3 = Colors.TextPrimary
+    self.WalkSpeedDecreaseButton.TextSize = 18
+    self.WalkSpeedDecreaseButton.Font = Enum.Font.GothamBold
+    self.WalkSpeedDecreaseButton.Parent = WalkSpeedControlFrame
+
+    -- Walk Speed Decrease Button Round Corners
+    local WalkDecreaseCorner = Instance.new("UICorner")
+    WalkDecreaseCorner.CornerRadius = UDim.new(0, 4)
+    WalkDecreaseCorner.Parent = self.WalkSpeedDecreaseButton
+
+    -- Walk Speed Bar
+    local WalkSpeedBar = Instance.new("Frame")
+    WalkSpeedBar.Name = "WalkSpeedBar"
+    WalkSpeedBar.Size = UDim2.new(1, -60, 0, 25)
+    WalkSpeedBar.Position = UDim2.new(0, 30, 0, 0)
+    WalkSpeedBar.BackgroundColor3 = Colors.Background
+    WalkSpeedBar.BorderSizePixel = 0
+    WalkSpeedBar.Parent = WalkSpeedControlFrame
+
+    -- Walk Speed Bar Round Corners
+    local WalkSpeedBarCorner = Instance.new("UICorner")
+    WalkSpeedBarCorner.CornerRadius = UDim.new(0, 4)
+    WalkSpeedBarCorner.Parent = WalkSpeedBar
+
+    -- Walk Speed Fill
+    self.WalkSpeedFill = Instance.new("Frame")
+    self.WalkSpeedFill.Name = "WalkSpeedFill"
+    self.WalkSpeedFill.Size = UDim2.new(
+        (self.Config.WalkSpeed - self.Config.MinWalkSpeed) / (self.Config.MaxWalkSpeed - self.Config.MinWalkSpeed),
+        0, 1, 0
+    )
+    self.WalkSpeedFill.BackgroundColor3 = Colors.Accent
+    self.WalkSpeedFill.BorderSizePixel = 0
+    self.WalkSpeedFill.Parent = WalkSpeedBar
+
+    -- Walk Speed Fill Round Corners
+    local WalkSpeedFillCorner = Instance.new("UICorner")
+    WalkSpeedFillCorner.CornerRadius = UDim.new(0, 4)
+    WalkSpeedFillCorner.Parent = self.WalkSpeedFill
+
+    -- Walk Speed Value
+    self.WalkSpeedValue = Instance.new("TextLabel")
+    self.WalkSpeedValue.Name = "WalkSpeedValue"
+    self.WalkSpeedValue.Size = UDim2.new(1, 0, 1, 0)
+    self.WalkSpeedValue.BackgroundTransparency = 1
+    self.WalkSpeedValue.Text = self.Config.WalkSpeed
+    self.WalkSpeedValue.TextColor3 = Colors.TextPrimary
+    self.WalkSpeedValue.TextSize = 14
+    self.WalkSpeedValue.Font = Enum.Font.GothamBold
+    self.WalkSpeedValue.Parent = WalkSpeedBar
+
+    -- Walk Speed Increase Button
+    self.WalkSpeedIncreaseButton = Instance.new("TextButton")
+    self.WalkSpeedIncreaseButton.Name = "WalkSpeedIncreaseButton"
+    self.WalkSpeedIncreaseButton.Size = UDim2.new(0, 25, 0, 25)
+    self.WalkSpeedIncreaseButton.Position = UDim2.new(1, -25, 0, 0)
+    self.WalkSpeedIncreaseButton.BackgroundColor3 = Colors.StatusOn
+    self.WalkSpeedIncreaseButton.Text = "+"
+    self.WalkSpeedIncreaseButton.TextColor3 = Colors.TextPrimary
+    self.WalkSpeedIncreaseButton.TextSize = 18
+    self.WalkSpeedIncreaseButton.Font = Enum.Font.GothamBold
+    self.WalkSpeedIncreaseButton.Parent = WalkSpeedControlFrame
+
     -- Add hover effects
     self:AddButtonEffects(self.ToggleFlyButton, Colors.HighlightButton)
     self:AddButtonEffects(self.ToggleNoClipButton, Colors.HighlightButton)
@@ -405,6 +488,8 @@ function UI:CreateUI()
     self:AddButtonEffects(self.ToggleWalkSpeedButton, Colors.HighlightButton)
     self:AddButtonEffects(self.SpeedDecreaseButton, Colors.StatusOff)
     self:AddButtonEffects(self.SpeedIncreaseButton, Colors.StatusOn)
+    self:AddButtonEffects(self.WalkSpeedDecreaseButton, Colors.StatusOff)
+    self:AddButtonEffects(self.WalkSpeedIncreaseButton, Colors.StatusOn)
     self:AddButtonEffects(self.CloseButton, Colors.StatusOff)
 
     -- Connect button events
@@ -466,6 +551,18 @@ function UI:ConnectEvents()
 
     self.SpeedIncreaseButton.MouseButton1Click:Connect(function()
         self.OnIncreaseSpeed()
+    end)
+
+    self.WalkSpeedDecreaseButton.MouseButton1Click:Connect(function()
+        if self.OnDecreaseWalkSpeed then
+            self.OnDecreaseWalkSpeed()
+        end
+    end)
+
+    self.WalkSpeedIncreaseButton.MouseButton1Click:Connect(function()
+        if self.OnIncreaseWalkSpeed then
+            self.OnIncreaseWalkSpeed()
+        end
     end)
 
     self.CloseButton.MouseButton1Click:Connect(function()
@@ -530,6 +627,32 @@ function UI:UpdateSpeed(speed)
     local fillRatio = (speed - self.Config.MinSpeed) / (self.Config.MaxSpeed - self.Config.MinSpeed)
     TweenService:Create(
         self.SpeedFill,
+        TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { Size = UDim2.new(fillRatio, 0, 1, 0) }
+    ):Play()
+end
+
+function UI:UpdateWalkSpeed(speed)
+    -- Update walk speed value
+    self.WalkSpeedValue.Text = speed
+
+    -- Update walk speed fill bar with smooth animation
+    local fillRatio = (speed - self.Config.MinWalkSpeed) / (self.Config.MaxWalkSpeed - self.Config.MinWalkSpeed)
+    TweenService:Create(
+        self.WalkSpeedFill,
+        TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { Size = UDim2.new(fillRatio, 0, 1, 0) }
+    ):Play()
+end
+
+function UI:UpdateWalkSpeedUI(speed)
+    -- Update walk speed value
+    self.WalkSpeedValue.Text = speed
+    
+    -- Update walk speed fill bar with smooth animation
+    local fillRatio = (speed - self.Config.MinWalkSpeed) / (self.Config.MaxWalkSpeed - self.Config.MinWalkSpeed)
+    TweenService:Create(
+        self.WalkSpeedFill,
         TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
         { Size = UDim2.new(fillRatio, 0, 1, 0) }
     ):Play()
