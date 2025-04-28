@@ -30,37 +30,43 @@ local Configuration = {
     FlySpeed = 25,
     ToggleFlyKey = Enum.KeyCode.E,
     ToggleNoClipKey = Enum.KeyCode.C,
-    ToggleInvisibleKey = Enum.KeyCode.X, 
+    ToggleInvisibleKey = Enum.KeyCode.X,
+    ToggleWalkSpeedKey = Enum.KeyCode.R,
     SpeedIncreaseKey = Enum.KeyCode.Q,
     SpeedDecreaseKey = Enum.KeyCode.Z,
     MaxSpeed = 100,
     MinSpeed = 5,
     SpeedIncrement = 5,
     PrintCooldown = 1,
-    ToggleUIKey = Enum.KeyCode.RightControl
+    ToggleUIKey = Enum.KeyCode.RightControl,
+    WalkSpeed = 32,
+    MaxWalkSpeed = 100,
+    MinWalkSpeed = 16,
+
 }
 
 local UI = LoadModule("UI")
-local FlyModule = LoadModule("FlyModule")
-local NoClipModule = LoadModule("NoClipModule")
-local InvisibleModule = LoadModule("InvisibleModule")
+local Fly = LoadModule("Fly")
+local NoClip = LoadModule("NoClip")
+local Invisible = LoadModule("Invisible")
+local WalkSpeed = LoadModule("WalkSpeed")
 
 if not UI then
     warn("Failed to load UI module")
     return
 end
 
-if not FlyModule then
+if not Fly then
     warn("Failed to load FlyModule")
     return
 end 
 
-if not NoClipModule then
+if not NoClip then
     warn("Failed to load NoClipModule")
     return
 end
 
-if not InvisibleModule then
+if not Invisible then
     warn("Failed to load InvisibleModule")
     return
 end
@@ -68,10 +74,12 @@ end
 local IsFlying = false
 local IsNoClipping = false
 local IsInvisible = false
+local IsWalkSpeedModified = false
 
-local flyInterface = FlyModule.new(Configuration)
-local noClipInterface = NoClipModule.new()
-local invisibleInterface = InvisibleModule.new()
+local flyInterface = Fly.new(Configuration)
+local noClipInterface = NoClip.new()
+local invisibleInterface = Invisible.new()
+local walkSpeedInterface = WalkSpeed.new(Configuration)
 local uiInterface = UI.new(Configuration)
 
 uiInterface.OnToggleFly = function()
@@ -94,6 +102,17 @@ uiInterface.OnToggleNoClip = function()
         IsNoClipping = true
     end
     uiInterface:UpdateNoClipStatus(IsNoClipping)
+end
+
+uiInterface.OnToggleWalkSpeed = function()
+    if IsWalkSpeedModified then
+        walkSpeedInterface:Disable()
+        IsWalkSpeedModified = false
+    else
+        walkSpeedInterface:Enable()
+        IsWalkSpeedModified = true
+    end
+    uiInterface:UpdateWalkSpeedStatus(IsWalkSpeedModified, walkSpeedInterface:GetSpeed())
 end
 
 uiInterface.OnToggleInvisible = function() 
@@ -136,10 +155,24 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessedEvent)
         uiInterface.OnToggleInvisible()
     end
     
+    if KeyCode == Configuration.ToggleWalkSpeedKey then
+        uiInterface.OnToggleWalkSpeed()
+    end
+    
     if KeyCode == Configuration.SpeedIncreaseKey then
-        uiInterface.OnIncreaseSpeed()
+        if IsFlying then
+            uiInterface.OnIncreaseSpeed()
+        elseif IsWalkSpeedModified then
+            local newSpeed = walkSpeedInterface:AdjustSpeed(Configuration.SpeedIncrement)
+            uiInterface:UpdateWalkSpeedStatus(IsWalkSpeedModified, newSpeed)
+        end
     elseif KeyCode == Configuration.SpeedDecreaseKey then
-        uiInterface.OnDecreaseSpeed()
+        if IsFlying then
+            uiInterface.OnDecreaseSpeed()
+        elseif IsWalkSpeedModified then
+            local newSpeed = walkSpeedInterface:AdjustSpeed(-Configuration.SpeedIncrement)
+            uiInterface:UpdateWalkSpeedStatus(IsWalkSpeedModified, newSpeed)
+        end
     end
     
     if KeyCode == Configuration.ToggleUIKey then
@@ -156,10 +189,12 @@ end)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+-- Character Respawn
 LocalPlayer.CharacterAdded:Connect(function(Character)
     flyInterface:SetCharacter(Character)
     noClipInterface:SetCharacter(Character)
     invisibleInterface:SetCharacter(Character)
+    walkSpeedInterface:SetCharacter(Character)  -- เพิ่มบรรทัดนี้
     
     if IsFlying then
         flyInterface:Stop()
@@ -174,12 +209,17 @@ LocalPlayer.CharacterAdded:Connect(function(Character)
     if IsInvisible then
         invisibleInterface:Enable()
     end
+    
+    if IsWalkSpeedModified then
+        walkSpeedInterface:Enable()
+    end
 end)
 
 if LocalPlayer.Character then
     flyInterface:SetCharacter(LocalPlayer.Character)
     noClipInterface:SetCharacter(LocalPlayer.Character)
     invisibleInterface:SetCharacter(LocalPlayer.Character)
+    walkSpeedInterface:SetCharacter(LocalPlayer.Character)
 end
 
 print("AsherHub loaded successfully!")

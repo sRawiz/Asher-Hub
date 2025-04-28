@@ -1,12 +1,12 @@
-local NoClipModule = {}
-NoClipModule.__index = NoClipModule
+local NoClip = {}
+NoClip.__index = NoClip
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-function NoClipModule.new()
-    local self = setmetatable({}, NoClipModule)
+function NoClip.new()
+    local self = setmetatable({}, NoClip)
     
     self.Character = nil
     self.Humanoid = nil
@@ -16,7 +16,7 @@ function NoClipModule.new()
     return self
 end
 
-function NoClipModule:SetCharacter(character)
+function NoClip:SetCharacter(character)
     self.Character = character
     if self.Character then
         self.Humanoid = self.Character:WaitForChild("Humanoid")
@@ -37,7 +37,7 @@ function NoClipModule:SetCharacter(character)
     end
 end
 
-function NoClipModule:Enable()
+function NoClip:Enable()
     if not self.Character then
         self:SetCharacter(LocalPlayer.Character)
         if not self.Character then return end
@@ -52,7 +52,7 @@ function NoClipModule:Enable()
     return true
 end
 
-function NoClipModule:Disable()
+function NoClip:Disable()
     self.IsNoClipping = false
     
     if self.NoClipConnection then
@@ -71,7 +71,7 @@ function NoClipModule:Disable()
     return true
 end
 
-function NoClipModule:UpdateNoClipForAllParts()
+function NoClip:UpdateNoClipForAllParts()
     if not self.Character or not self.IsNoClipping then return end
     
     for _, part in pairs(self.Character:GetDescendants()) do
@@ -81,7 +81,7 @@ function NoClipModule:UpdateNoClipForAllParts()
     end
 end
 
-function NoClipModule:SetupNoClipLoop()
+function NoClip:SetupNoClipLoop()
     if self.NoClipConnection then
         self.NoClipConnection:Disconnect()
     end
@@ -97,7 +97,7 @@ function NoClipModule:SetupNoClipLoop()
     end)
 end
 
-function NoClipModule:Toggle()
+function NoClip:Toggle()
     if self.IsNoClipping then
         return self:Disable()
     else
@@ -105,8 +105,8 @@ function NoClipModule:Toggle()
     end
 end
 
-function NoClipModule:IsEnabled()
+function NoClip:IsEnabled()
     return self.IsNoClipping
 end
 
-return NoClipModule
+return NoClip

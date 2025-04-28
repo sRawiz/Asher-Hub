@@ -1,12 +1,12 @@
-local FlyModule = {}
-FlyModule.__index = FlyModule
+local Fly = {}
+Fly.__index = Fly
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-function FlyModule.new(config)
-    local self = setmetatable({}, FlyModule)
+function Fly.new(config)
+    local self = setmetatable({}, Fly)
     
     self.Character = nil
     self.HumanoidRootPart = nil
@@ -37,7 +37,7 @@ function FlyModule.new(config)
     return self
 end
 
-function FlyModule:SetCharacter(character)
+function Fly:SetCharacter(character)
     self.Character = character
     if self.Character then
         self.HumanoidRootPart = self.Character:WaitForChild("HumanoidRootPart")
@@ -53,7 +53,7 @@ function FlyModule:SetCharacter(character)
     end
 end
 
-function FlyModule:CreateFlyObjects()
+function Fly:CreateFlyObjects()
     if not self.HumanoidRootPart then return end
     
     self.BodyVelocity = Instance.new("BodyVelocity")
@@ -67,7 +67,7 @@ function FlyModule:CreateFlyObjects()
     self.BodyGyro.Parent = self.HumanoidRootPart
 end
 
-function FlyModule:DestroyFlyObjects()
+function Fly:DestroyFlyObjects()
     if self.BodyVelocity then
         self.BodyVelocity:Destroy()
         self.BodyVelocity = nil
@@ -78,7 +78,7 @@ function FlyModule:DestroyFlyObjects()
     end
 end
 
-function FlyModule:Start()
+function Fly:Start()
     if not self.Character or not self.Humanoid then
         self:SetCharacter(LocalPlayer.Character)
         if not self.Character or not self.Humanoid then return end
@@ -96,7 +96,7 @@ function FlyModule:Start()
     
 end
 
-function FlyModule:Stop()
+function Fly:Stop()
     self.IsFlying = false
     
     if self.Humanoid then
@@ -116,7 +116,7 @@ function FlyModule:Stop()
     
 end
 
-function FlyModule:UpdateMoveDirection()
+function Fly:UpdateMoveDirection()
     self.MoveDirection = Vector3.zero
     
     if self.Controls.Forward then
@@ -143,7 +143,7 @@ function FlyModule:UpdateMoveDirection()
     end
 end
 
-function FlyModule:Update()
+function Fly:Update()
     if not self.IsFlying then return end
     
     if not self.HumanoidRootPart or not self.Humanoid then
@@ -174,7 +174,7 @@ function FlyModule:Update()
     end
 end
 
-function FlyModule:HandleInput(keyCode, isBegin)
+function Fly:HandleInput(keyCode, isBegin)
     if keyCode == Enum.KeyCode.W then
         self.Controls.Forward = isBegin
     elseif keyCode == Enum.KeyCode.S then
@@ -190,7 +190,7 @@ function FlyModule:HandleInput(keyCode, isBegin)
     end
 end
 
-function FlyModule:PrintWithCooldown(message)
+function Fly:PrintWithCooldown(message)
     local currentTime = tick()
     if currentTime - self.LastSpeedPrint >= self.Config.PrintCooldown then
         self.LastSpeedPrint = currentTime
@@ -198,7 +198,7 @@ function FlyModule:PrintWithCooldown(message)
 end
 
 
-function FlyModule:AdjustSpeed(increment)
+function Fly:AdjustSpeed(increment)
     local oldSpeed = self.Config.FlySpeed
     self.Config.FlySpeed = math.clamp(
         self.Config.FlySpeed + increment, 
@@ -213,8 +213,8 @@ function FlyModule:AdjustSpeed(increment)
     return self.Config.FlySpeed
 end
 
-function FlyModule:GetSpeed()
+function Fly:GetSpeed()
     return self.Config.FlySpeed
 end
 
-return FlyModule
+return Fly

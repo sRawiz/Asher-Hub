@@ -1,13 +1,13 @@
-local InvisibleModule = {}
-InvisibleModule.__index = InvisibleModule
+local Invisible = {}
+Invisible.__index = Invisible
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-function InvisibleModule.new()
-    local self = setmetatable({}, InvisibleModule)
+function Invisible.new()
+    local self = setmetatable({}, Invisible)
     
     self.Character = nil
     self.Humanoid = nil
@@ -18,7 +18,7 @@ function InvisibleModule.new()
     return self
 end
 
-function InvisibleModule:SetCharacter(character)
+function Invisible:SetCharacter(character)
     self.Character = character
     if self.Character then
         self.Humanoid = self.Character:WaitForChild("Humanoid")
@@ -33,7 +33,7 @@ function InvisibleModule:SetCharacter(character)
     end
 end
 
-function InvisibleModule:Enable()
+function Invisible:Enable()
     if not self.Character then
         self:SetCharacter(LocalPlayer.Character)
         if not self.Character then return false end
@@ -67,7 +67,7 @@ function InvisibleModule:Enable()
     return true
 end
 
-function InvisibleModule:Disable()
+function Invisible:Disable()
     if not self.IsInvisible then return false end
     
     self.IsInvisible = false
@@ -90,7 +90,7 @@ function InvisibleModule:Disable()
     return true
 end
 
-function InvisibleModule:Toggle()
+function Invisible:Toggle()
     if self.IsInvisible then
         return self:Disable()
     else
@@ -98,8 +98,8 @@ function InvisibleModule:Toggle()
     end
 end
 
-function InvisibleModule:IsEnabled()
+function Invisible:IsEnabled()
     return self.IsInvisible
 end
 
-return InvisibleModule
+return Invisible
