@@ -169,13 +169,14 @@ function UI:CreateUI()
     self.FlyStatus = Instance.new("TextLabel")
     self.FlyStatus.Name = "FlyStatus"
     self.FlyStatus.Size = UDim2.new(0.5, -5, 0, 25)
-    self.FlyStatus.Position = UDim2.new(0, 10, 0, 5)
+    self.FlyStatus.Position = UDim2.new(0, 10, 0, 10)
     self.FlyStatus.BackgroundColor3 = Colors.Background
     self.FlyStatus.BorderSizePixel = 0
     self.FlyStatus.Text = "Fly: OFF"
     self.FlyStatus.TextColor3 = Colors.StatusOff
     self.FlyStatus.TextSize = 14
     self.FlyStatus.Font = Enum.Font.Gotham
+    self.FlyStatus.TextXAlignment = Enum.TextXAlignment.Center
     self.FlyStatus.Parent = StatusFrame
 
     -- Fly Status Round Corners
@@ -187,39 +188,42 @@ function UI:CreateUI()
     self.NoClipStatus = Instance.new("TextLabel")
     self.NoClipStatus.Name = "NoClipStatus"
     self.NoClipStatus.Size = UDim2.new(0.5, -5, 0, 25)
-    self.NoClipStatus.Position = UDim2.new(0.5, -5, 0, 5)
+    self.NoClipStatus.Position = UDim2.new(0.5, 5, 0, 10)
     self.NoClipStatus.BackgroundColor3 = Colors.Background
     self.NoClipStatus.BorderSizePixel = 0
     self.NoClipStatus.Text = "NoClip: OFF"
     self.NoClipStatus.TextColor3 = Colors.StatusOff
     self.NoClipStatus.TextSize = 14
     self.NoClipStatus.Font = Enum.Font.Gotham
+    self.NoClipStatus.TextXAlignment = Enum.TextXAlignment.Center
     self.NoClipStatus.Parent = StatusFrame
 
     -- WalkSpeed Status
     self.WalkSpeedStatus = Instance.new("TextLabel")
     self.WalkSpeedStatus.Name = "WalkSpeedStatus"
     self.WalkSpeedStatus.Size = UDim2.new(0.5, -5, 0, 25)
-    self.WalkSpeedStatus.Position = UDim2.new(0.5, -5, 0, 35)
+    self.WalkSpeedStatus.Position = UDim2.new(0, 10, 0, 45)
     self.WalkSpeedStatus.BackgroundColor3 = Colors.Background
     self.WalkSpeedStatus.BorderSizePixel = 0
     self.WalkSpeedStatus.Text = "Walk Speed: OFF"
     self.WalkSpeedStatus.TextColor3 = Colors.StatusOff
     self.WalkSpeedStatus.TextSize = 14
     self.WalkSpeedStatus.Font = Enum.Font.Gotham
+    self.WalkSpeedStatus.TextXAlignment = Enum.TextXAlignment.Center
     self.WalkSpeedStatus.Parent = StatusFrame
 
     -- Invisible Status
     self.InvisibleStatus = Instance.new("TextLabel")
     self.InvisibleStatus.Name = "InvisibleStatus"
-    self.InvisibleStatus.Size = UDim2.new(1, -20, 0, 25)
-    self.InvisibleStatus.Position = UDim2.new(0, 10, 0, 65)
+    self.InvisibleStatus.Size = UDim2.new(0.5, -5, 0, 25)
+    self.InvisibleStatus.Position = UDim2.new(0.5, 5, 0, 45)
     self.InvisibleStatus.BackgroundColor3 = Colors.Background
     self.InvisibleStatus.BorderSizePixel = 0
     self.InvisibleStatus.Text = "Invisible: OFF"
     self.InvisibleStatus.TextColor3 = Colors.StatusOff
     self.InvisibleStatus.TextSize = 14
     self.InvisibleStatus.Font = Enum.Font.Gotham
+    self.InvisibleStatus.TextXAlignment = Enum.TextXAlignment.Center
     self.InvisibleStatus.Parent = StatusFrame
 
     -- Invisible Status Round Corners
@@ -231,12 +235,13 @@ function UI:CreateUI()
     self.SpeedLabel = Instance.new("TextLabel")
     self.SpeedLabel.Name = "SpeedLabel"
     self.SpeedLabel.Size = UDim2.new(1, -20, 0, 20)
-    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 95)
+    self.SpeedLabel.Position = UDim2.new(0, 10, 0, 80)
     self.SpeedLabel.BackgroundTransparency = 1
     self.SpeedLabel.Text = "Speed: " .. self.Config.FlySpeed
     self.SpeedLabel.TextColor3 = Colors.TextPrimary
     self.SpeedLabel.TextSize = 14
     self.SpeedLabel.Font = Enum.Font.Gotham
+    self.SpeedLabel.TextXAlignment = Enum.TextXAlignment.Center
     self.SpeedLabel.Parent = StatusFrame
 
     -- Controls Section
@@ -292,7 +297,7 @@ function UI:CreateUI()
     self.ToggleWalkSpeedButton = Instance.new("TextButton")
     self.ToggleWalkSpeedButton.Name = "ToggleWalkSpeedButton"
     self.ToggleWalkSpeedButton.Size = UDim2.new(0.5, -15, 0, 30)
-    self.ToggleWalkSpeedButton.Position = UDim2.new(0, 10, 0, 45)
+    self.ToggleWalkSpeedButton.Position = UDim2.new(0, 10, 0, 50)
     self.ToggleWalkSpeedButton.BackgroundColor3 = Colors.HighlightButton
     self.ToggleWalkSpeedButton.Text = "Walk Speed (R)"
     self.ToggleWalkSpeedButton.TextColor3 = Colors.TextPrimary
@@ -308,8 +313,8 @@ function UI:CreateUI()
     -- Toggle Invisible Button
     self.ToggleInvisibleButton = Instance.new("TextButton")
     self.ToggleInvisibleButton.Name = "ToggleInvisibleButton"
-    self.ToggleInvisibleButton.Size = UDim2.new(1, -20, 0, 30)
-    self.ToggleInvisibleButton.Position = UDim2.new(0, 10, 0, 80)
+    self.ToggleInvisibleButton.Size = UDim2.new(0.5, -15, 0, 30)
+    self.ToggleInvisibleButton.Position = UDim2.new(0.5, 5, 0, 50)
     self.ToggleInvisibleButton.BackgroundColor3 = Colors.HighlightButton
     self.ToggleInvisibleButton.Text = "Invisible (X)"
     self.ToggleInvisibleButton.TextColor3 = Colors.TextPrimary
@@ -326,7 +331,7 @@ function UI:CreateUI()
     local SpeedControlFrame = Instance.new("Frame")
     SpeedControlFrame.Name = "SpeedControlFrame"
     SpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
-    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 130) -- ปรับตำแหน่งให้อยู่ภายใน ControlsFrame
+    SpeedControlFrame.Position = UDim2.new(0, 10, 0, 90) -- ปรับตำแหน่งให้อยู่ภายใน ControlsFrame
     SpeedControlFrame.BackgroundTransparency = 1
     SpeedControlFrame.Parent = ControlsFrame
 
@@ -398,11 +403,16 @@ function UI:CreateUI()
     self.SpeedIncreaseButton.Font = Enum.Font.GothamBold
     self.SpeedIncreaseButton.Parent = SpeedControlFrame
 
+    -- Speed Increase Button Round Corners
+    local SpeedIncreaseCorner = Instance.new("UICorner")
+    SpeedIncreaseCorner.CornerRadius = UDim.new(0, 4)
+    SpeedIncreaseCorner.Parent = self.SpeedIncreaseButton
+
     -- Walk Speed Control Frame
     local WalkSpeedControlFrame = Instance.new("Frame")
     WalkSpeedControlFrame.Name = "WalkSpeedControlFrame"
     WalkSpeedControlFrame.Size = UDim2.new(1, -20, 0, 25)
-    WalkSpeedControlFrame.Position = UDim2.new(0, 10, 0, 165) -- ปรับตำแหน่งให้อยู่ถัดจาก SpeedControlFrame
+    WalkSpeedControlFrame.Position = UDim2.new(0, 10, 0, 125) -- ปรับตำแหน่งให้อยู่ถัดจาก SpeedControlFrame
     WalkSpeedControlFrame.BackgroundTransparency = 1
     WalkSpeedControlFrame.Parent = ControlsFrame
 
@@ -475,6 +485,11 @@ function UI:CreateUI()
     self.WalkSpeedIncreaseButton.TextSize = 18
     self.WalkSpeedIncreaseButton.Font = Enum.Font.GothamBold
     self.WalkSpeedIncreaseButton.Parent = WalkSpeedControlFrame
+
+    -- Walk Speed Increase Button Round Corners
+    local WalkSpeedIncreaseCorner = Instance.new("UICorner")
+    WalkSpeedIncreaseCorner.CornerRadius = UDim.new(0, 4)
+    WalkSpeedIncreaseCorner.Parent = self.WalkSpeedIncreaseButton
 
     -- Add hover effects
     self:AddButtonEffects(self.ToggleFlyButton, Colors.HighlightButton)
